@@ -19,6 +19,23 @@
 }
 
 :root {
+  --browser-bg: #eee;
+  --page-bg: #fff;
+  --banner-bg: #b3c9ad;
+  --banner-text: #fff;
+  --banner-start: #afc5a8;
+  --banner-middle: #b9cfb2;
+  --banner-end: #afc5a8;
+  --mobile-menu-bg: rgba(179, 201, 173, .98);
+  --page-glow: rgba(179, 201, 173, .14);
+  --profile-bg: #f0f1e8;
+  --facts-bg: #f4f5f1;
+  --card-bg: #fff;
+  --card-translucent-bg: rgba(255,255,255,.78);
+  --card-soft-bg: rgba(246,248,243,.78);
+  --intro-text: #364024;
+  --field-top: #b3bfa4;
+  --field-bottom: #dde3d5;
   --ink: #565b54;
   --green: #718a45;
   --deep: #33451f;
@@ -34,12 +51,12 @@
 
 html {
   scroll-behavior: smooth;
-  background: #eee
+  background: var(--browser-bg)
 }
 
 body {
   margin: 0;
-  background: #fff;
+  background: var(--page-bg);
   color: var(--ink);
   font-family: var(--serif);
   font-size: 16px;
@@ -52,8 +69,8 @@ body {
   padding: 0 102px;
   display: flex;
   align-items: center;
-  background: #b3c9ad;
-  color: white;
+  background: var(--banner-bg);
+  color: var(--banner-text);
   border-bottom: 1px solid rgba(77, 94, 70, .32);
   position: sticky;
   top: 0;
@@ -73,7 +90,7 @@ body {
 }
 
 .site-nav a {
-  color: #fff;
+  color: var(--banner-text);
   opacity: 1;
   text-decoration: none;
   font-family: Zhaohua,var(--serif);
@@ -104,7 +121,7 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  border: 3px solid #fff
+  border: 3px solid var(--banner-text)
 }
 
 .account:before {
@@ -147,7 +164,7 @@ body {
 
 .profile-card {
   height: 730px;
-  background: #f0f1e8;
+  background: var(--profile-bg);
   border-radius: 22px;
   padding: 22px 43px;
   position: relative
@@ -187,7 +204,7 @@ body {
 
 .facts {
   margin: 0;
-  background: #f4f5f1;
+  background: var(--facts-bg);
   padding: 24px 48px
 }
 
@@ -267,7 +284,7 @@ body {
 }
 
 .paper-card {
-  background: rgba(255,255,255,.78);
+  background: var(--card-translucent-bg);
   border-radius: 12px;
   padding: 0 29px
 }
@@ -313,14 +330,14 @@ body {
 
 .intro header {
   grid-row: 1;
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 0 29px
 }
 
 .intro p {
   grid-row: 2;
-  background: rgba(246,248,243,.78);
+  background: var(--card-soft-bg);
   border-radius: 12px;
   margin: 0;
   padding: 18px 28px;
@@ -328,7 +345,7 @@ body {
   align-items: center;
   line-height: 1.6;
   letter-spacing: -.04em;
-  color: #364024
+  color: var(--intro-text)
 }
 
 .intro p {
@@ -358,14 +375,14 @@ body {
 
 .relations header {
   grid-row: 3;
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 0 29px
 }
 
 .relation-grid {
   grid-row: 4;
-  background: rgba(246,248,243,.78);
+  background: var(--card-soft-bg);
   border-radius: 12px;
   padding: 15px 25px;
   display: flex;
@@ -403,7 +420,7 @@ body {
 }
 
 .relation-grid article::after {
-  content: "›";
+  content: "鈥�";
   position: absolute;
   right: 9px;
   color: #91a77c;
@@ -434,7 +451,7 @@ body {
   height: 550px;
   border-radius: 11px;
   overflow: hidden;
-  background: #fff;
+  background: var(--card-bg);
   position: relative
 }
 
@@ -474,12 +491,12 @@ body {
 /* Subtle visual polish */
 body {
   background:
-    radial-gradient(circle at 78% 18%, rgba(179, 201, 173, .14), transparent 30%),
-    #fff;
+    radial-gradient(circle at 78% 18%, var(--page-glow), transparent 30%),
+    var(--page-bg);
 }
 
 .site-header {
-  background: linear-gradient(90deg, #afc5a8 0%, #b9cfb2 55%, #afc5a8 100%);
+  background: linear-gradient(90deg, var(--banner-start) 0%, var(--banner-middle) 55%, var(--banner-end) 100%);
   box-shadow: 0 4px 18px rgba(56, 77, 44, .12);
 }
 
@@ -494,7 +511,7 @@ body {
 }
 
 .site-nav a:hover {
-  color: #fff;
+  color: var(--banner-text);
   background: transparent;
   text-shadow: none;
   transform: scale(1.08);
@@ -517,7 +534,7 @@ body {
 
 .character-panel {
   background:
-    linear-gradient(to bottom, #b3bfa4 0%, #dde3d5 100%);
+    linear-gradient(to bottom, var(--field-top) 0%, var(--field-bottom) 100%);
   box-shadow: 0 20px 50px rgba(52, 69, 40, .12);
 }
 
@@ -616,7 +633,7 @@ body {
   flex-direction: column;
   align-items: stretch;
   overflow: hidden;
-  background: rgba(179, 201, 173, .98);
+  background: var(--mobile-menu-bg);
   border-bottom: 1px solid rgba(77, 94, 70, .2);
   box-shadow: 0 12px 24px rgba(49, 66, 39, .12)
 }
@@ -648,7 +665,7 @@ body {
   display: block;
   width: 100%;
   height: 2px;
-  background: #fff;
+  background: var(--banner-text);
   border-radius: 2px;
   transform-origin: center;
   transition: transform .2s ease, opacity .2s ease
