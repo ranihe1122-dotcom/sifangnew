@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="四方志原创世界观设定站">
+
+  <title>四方志</title>
+
+  <!-- 与人物页面共用 banner、字体和手机菜单样式 -->
+  <link rel="stylesheet" href="./characters/style.css">
+
+  <style>
+    :root {
+      --browser-bg: #f0eee6;
+      --page-bg: #ebdfda;
+
+      --banner-bg: #878787;
+      --banner-text: #f0eee6;
+      --banner-start: #878787;
+      --banner-middle: #8d8d8d;
+      --banner-end: #878787;
+      --mobile-menu-bg: rgba(135, 135, 135, .98);
+
+      --page-glow: rgba(186, 172, 168, .2);
+      --ink: #585044;
+      --green: #585044;
+      --deep: #585044;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--page-bg);
+    }
+
+    .home-page {
+      position: relative;
+      isolation: isolate;
+      min-height: calc(100vh - 62px);
+      padding: clamp(38px, 6vh, 78px) 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(240, 238, 230, .48), transparent 26%),
+        radial-gradient(circle at 88% 78%, rgba(186, 172, 168, .24), transparent 30%);
+    }
+
+    .home-page::before,
+    .home-page::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .home-page::before {
+      background-image: url("./assets/images/diwen.png");
+      background-repeat: repeat;
+      background-size: 420px 420px;
+      opacity: .065;
+      mix-blend-mode: multiply;
+    }
+
+    .home-page::after {
+      inset: -12% 2% 15% auto;
+      width: min(560px, 42vw);
+      background-image: url("./assets/images/shufa.png");
+      background-repeat: no-repeat;
+      background-position: right center;
+      background-size: contain;
+      opacity: .085;
+    }
+
+    .world-frame {
+      position: relative;
+      z-index: 1;
+      width: min(1260px, 100%);
+      min-height: 550px;
+      padding: 38px;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(240px, 1.18fr);
+      gap: 42px;
+      background: rgba(186, 172, 168, .68);
+      border: 0;
+      border-radius: 28px;
+      box-shadow:
+        0 28px 70px rgba(88, 80, 68, .12),
+        inset 0 1px 0 rgba(255, 255, 255, .26);
+    }
+
+    .world-frame::before,
+    .world-frame::after {
+      content: "";
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      pointer-events: none;
+    }
+
+    .world-frame::before {
+      top: 17px;
+      left: 17px;
+      border-top: 1px solid rgba(88, 80, 68, .2);
+      border-left: 1px solid rgba(88, 80, 68, .2);
+      border-radius: 9px 0 0;
+    }
+
+    .world-frame::after {
+      right: 17px;
+      bottom: 17px;
+      border-right: 1px solid rgba(88, 80, 68, .2);
+      border-bottom: 1px solid rgba(88, 80, 68, .2);
+      border-radius: 0 0 9px;
+    }
+
+    .world-intro,
+    .world-title {
+      border: 0;
+      box-shadow:
+        0 10px 26px rgba(88, 80, 68, .055),
+        inset 0 1px 0 rgba(255, 255, 255, .22);
+    }
+
+    .world-intro {
+      position: relative;
+      min-width: 0;
+      padding: clamp(42px, 6vw, 70px) clamp(42px, 6vw, 70px) 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background: linear-gradient(
+        145deg,
+        rgba(240, 238, 230, .48),
+        rgba(240, 238, 230, .3)
+      );
+    }
+
+    .world-intro::before {
+      content: "SIFANG·MAIN";
+      position: absolute;
+      top: 27px;
+      left: clamp(42px, 6vw, 70px);
+      color: rgba(88, 80, 68, .52);
+      font: 10px/1.2 Georgia, serif;
+      letter-spacing: .2em;
+      transform: translateX(8px);
+    }
+
+    .world-copy {
+      margin: 0;
+      max-width: 700px;
+      color: #585044;
+      font-family: Qiji, var(--serif);
+      font-size: clamp(20px, 2vw, 28px);
+      font-weight: 400;
+      line-height: 1.8;
+      letter-spacing: .035em;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .3);
+    }
+
+    .site-note {
+      position: relative;
+      margin: 48px 0 0;
+      padding-top: 18px;
+      color: #878787;
+      font-family: "Songti SC", "STSong", serif;
+      font-size: 13px;
+      font-weight: 400;
+      font-synthesis: none;
+      line-height: 1.65;
+      letter-spacing: .02em;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .site-note::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 42px;
+      height: 1px;
+      background: rgba(88, 80, 68, .32);
+    }
+
+    .world-title {
+      position: relative;
+      min-height: 474px;
+      padding: 28px 18px 28px 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: linear-gradient(
+        165deg,
+        rgba(240, 238, 230, .52),
+        rgba(240, 238, 230, .3)
+      );
+      box-shadow:
+        0 10px 26px rgba(88, 80, 68, .055),
+        inset 0 1px 0 rgba(255, 255, 255, .18);
+    }
+
+    .title-mark {
+      width: min(76%, 210px);
+      height: 100%;
+      max-height: 450px;
+      object-fit: contain;
+      display: block;
+      filter: drop-shadow(0 8px 10px rgba(88, 80, 68, .1));
+      transform: translateX(30px);
+    }
+
+    .title-picture {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .title-mark-mobile {
+      display: none;
+    }
+
+    .title-stamp {
+      position: absolute;
+      left: 46px;
+      bottom: 24px;
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      opacity: .86;
+      transform: rotate(-2deg);
+      filter: saturate(.88) contrast(.96);
+    }
+
+    .title-verse {
+      position: absolute;
+      left: 54px;
+      top: 64%;
+      margin: 0;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: flex-start;
+      gap: 10px;
+      color: #666;
+      font-family: Qiji, var(--serif);
+      font-size: 19px;
+      transform: translateY(-50%);
+    }
+
+    .title-verse span {
+      display: block;
+      writing-mode: vertical-rl;
+      white-space: nowrap;
+      line-height: 1;
+      letter-spacing: .18em;
+    }
+
+    @media (max-width: 1250px) {
+      .world-frame::before,
+      .world-frame::after {
+        display: none;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .home-page {
+        min-height: calc(100vh - 62px);
+        padding: 28px 20px 48px;
+        align-items: flex-start;
+      }
+
+      .home-page::before {
+        background-size: 300px 300px;
+      }
+
+      .home-page::after {
+        inset: 2% -8% auto auto;
+        width: 72vw;
+        height: 65%;
+        opacity: .065;
+      }
+
+      .world-frame {
+        width: min(620px, 100%);
+        min-height: 0;
+        padding: 22px;
+        grid-template-columns: 1fr;
+        gap: 22px;
+        border-radius: 20px;
+      }
+
+      .world-title {
+        grid-row: 1;
+        min-height: 300px;
+      }
+
+      .title-mark {
+        width: min(76%, 210px);
+        height: 100%;
+        max-height: 280px;
+        transform: translateX(22px);
+      }
+
+      .title-stamp {
+        left: 34px;
+        bottom: 20px;
+        width: 36px;
+        height: 36px;
+      }
+
+      .world-intro {
+        grid-row: 2;
+        padding: 34px 30px 28px;
+      }
+
+      .world-copy {
+        font-size: 20px;
+      }
+
+      .site-note {
+        margin-top: 36px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .world-title {
+        min-height: 220px;
+        padding-block: 14px;
+      }
+
+      .title-mark-desktop {
+        display: none;
+      }
+
+      .title-mark-mobile {
+        display: block;
+        width: min(82%, 360px);
+        height: auto;
+        max-height: none;
+        object-fit: contain;
+        transform: translateX(28px);
+      }
+
+      .title-verse {
+        top: 52%;
+        font-size: 12px;
+        gap: 6px;
+      }
+
+      .title-verse span {
+        letter-spacing: .12em;
+      }
+
+      .title-stamp {
+        width: 26px;
+        height: 26px;
+        bottom: 17px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .home-page {
+        padding: 18px 0 0;
+      }
+
+      .world-frame {
+        width: 100%;
+        padding: 14px;
+        gap: 14px;
+        border-radius: 0;
+      }
+
+      .world-title {
+        min-height: 190px;
+        padding: 12px;
+      }
+
+      .title-mark-mobile {
+        width: min(86%, 330px);
+        height: auto;
+        max-height: none;
+        transform: translateX(24px);
+      }
+
+      .title-verse {
+        left: 38px;
+        top: 49%;
+        font-size: 10px;
+        gap: 5px;
+      }
+
+      .world-intro {
+        padding: 30px 24px 24px;
+      }
+
+      .world-copy {
+        font-size: 18px;
+        line-height: 1.75;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      aria-label="打开导航菜单"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav id="site-nav" class="site-nav" aria-label="主导航">
+      <a href="./index.html">主页</a>
+      <a href="./characters/index.html">人物志</a>
+      <a href="./story/index.html">记闻</a>
+      <a href="./map.html">地图</a>
+      <a href="./timeline.html">时间线</a>
+      <a href="./fanfic.html">杂谈</a>
+    </nav>
+
+    <a class="account" href="./user.html" aria-label="用户中心">泥</a>
+  </header>
+
+  <main class="home-page">
+    <section class="world-frame" aria-labelledby="world-title">
+      <div class="world-intro">
+        <p class="world-copy">
+          晏朝末年，天下名义犹归一统。<br>
+          然帝室衰微，政令不出承京。实权渐分于四方。<br>
+          旧朝礼法、边镇军权、民间自治、部族秩序，四者并立，相互掣肘。
+        </p>
+
+        <p class="site-note">
+          本站为原创 OC 世界观设定展示，人物、势力与相关情节均属虚构。无盈利，非商业。<br>
+          （还在努力建设中 TT 目前还不完善～）
+        </p>
+      </div>
+
+      <div class="world-title">
+        <p class="title-verse">
+          <span>「溪云初起日沉阁，</span>
+          <span>山雨欲来风满楼」</span>
+        </p>
+        <img
+          class="title-stamp"
+          src="./assets/images/stamp.png"
+          alt=""
+          aria-hidden="true"
+        >
+        <div id="world-title" class="title-picture">
+          <img
+            class="title-mark title-mark-desktop"
+            src="./assets/images/sifang_title.png"
+            alt="四方志"
+          >
+          <img
+            class="title-mark-mobile"
+            src="./assets/images/media_title.png"
+            alt="四方志"
+          >
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const menuButton = document.querySelector(".menu-toggle");
+    const siteNav = document.querySelector(".site-nav");
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = siteNav.classList.toggle("is-open");
+
+      menuButton.classList.toggle("is-open", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute(
+        "aria-label",
+        isOpen ? "关闭导航菜单" : "打开导航菜单"
+      );
+    });
+
+    siteNav.addEventListener("click", (event) => {
+      if (event.target.closest("a") && window.innerWidth <= 900) {
+        siteNav.classList.remove("is-open");
+        menuButton.classList.remove("is-open");
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "打开导航菜单");
+      }
+    });
+  </script>
+</body>
+</html>
