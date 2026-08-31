@@ -26,11 +26,11 @@
       --page-glow: rgba(201, 173, 173, 0.14);
 
       --profile-bg: #f1e8e8;
-      --facts-bg: #f4f5f1;
+      --facts-bg: #f5f1f1;
 
       --card-bg: #fff;
       --card-translucent-bg: rgba(255, 255, 255, .78);
-      --card-soft-bg: rgba(246, 248, 243, .78);
+      --card-soft-bg: rgba(248, 243, 243, .78);
 
       --intro-text: #402424;
 
@@ -41,6 +41,32 @@
       --green: #8a4545;
       --deep: #451f1f;
       --line: #d9d2d2;
+
+      --owner-color: #9b6868;
+      --relation-name: #9e6161;
+      --relation-arrow: #a77c7c;
+      --relation-line: rgba(138, 69, 69, .16);
+      --relation-hover: rgba(201, 173, 173, .20);
+      --relation-focus: rgba(138, 69, 69, .28);
+
+      --banner-border: rgba(94, 70, 70, .32);
+      --banner-shadow: rgba(77, 44, 44, .12);
+      --soft-border: rgba(138, 69, 69, .08);
+      --profile-shadow: rgba(69, 40, 40, .10);
+      --facts-shadow: rgba(83, 59, 59, .045);
+      --panel-shadow: rgba(69, 40, 40, .12);
+      --portrait-shadow: rgba(72, 44, 44, .10);
+      --card-shadow: rgba(82, 55, 55, .055);
+      --menu-border: rgba(94, 70, 70, .20);
+      --menu-shadow: rgba(66, 39, 39, .12);
+
+      /* 立绘位置 */
+      --portrait-position: -150% -40px;
+      --portrait-scale: 3;
+      --portrait-origin: 50% 12%;
+      --portrait-position-tablet: 45% -33px;
+      --portrait-scale-tablet: 3;
+      --portrait-origin-tablet: 50% 12%;
     }
   </style>
 </head>
@@ -81,7 +107,7 @@
     <aside id="profile" class="profile-card">
       <div class="avatar-wrap">
         <img
-          src="./assets/images/zhenglinshu_avatar.png"
+          src="./assets/images/avatar.png"
           alt="头像"
         >
       </div>
@@ -92,7 +118,7 @@
 
       <dl class="facts">
         <div>
-          <dt>原名</dt>
+          <dt>字</dt>
           <dd>文尧</dd>
         </div>
 
@@ -198,7 +224,7 @@
               <small>姐姐</small>
             </a>
 
-            <a href="../yeqichi/index.html">
+            <a href="../qinqin/index.html">
               <b>秦溱</b>
               <small>同僚</small>
             </a>
@@ -210,7 +236,7 @@
       <div class="portrait-area">
         <img
           class="portrait"
-          src="./assets/images/zhenglinshu_portrait.png"
+          src="./assets/images/portrait.png"
           alt="人物立绘"
         >
       </div>
