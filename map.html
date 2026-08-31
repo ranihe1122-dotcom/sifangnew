@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>四方地图</title>
+
+<style>
+  :root {
+    --ink: #241f1b;
+    --deep: #2e201d;
+    --cinnabar: #883a1e;
+    --green: #315444;
+    --paper: #efe6d3;
+    --line: rgba(36, 31, 27, 0.34);
+    --muted: rgba(36, 31, 27, 0.68);
+    --shadow: 0 18px 42px rgba(36,31,27,0.16);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 28px;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(136,58,30,0.10), transparent 26rem),
+      linear-gradient(135deg, #efe6d3 0%, #d9c8ad 100%);
+    font-family: "Songti SC", "Noto Serif SC", "STSong", serif;
+    color: var(--ink);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(70, 52, 35, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(70, 52, 35, 0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.72;
+    z-index: -1;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .map-page {
+    width: min(1120px, calc(100% - 24px));
+    margin: 0 auto;
+    padding: 20px 0 54px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .eyebrow {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--cinnabar);
+    letter-spacing: 0.22em;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 54px);
+    line-height: 1.1;
+    letter-spacing: 0.16em;
+    color: var(--deep);
+    font-weight: 800;
+  }
+
+  h1::after {
+    content: "";
+    display: block;
+    width: 72px;
+    height: 2px;
+    margin-top: 14px;
+    background: linear-gradient(90deg, var(--cinnabar), transparent);
+    opacity: 0.55;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .map-btn,
+  .home-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border: 1px solid rgba(36,31,27,0.28);
+    background: rgba(239,232,216,0.72);
+    color: rgba(36,31,27,0.82);
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.18s ease;
+  }
+
+  .map-btn:hover,
+  .home-link:hover {
+    background: rgba(136,58,30,0.10);
+    color: var(--cinnabar);
+    transform: translateY(-1px);
+  }
+
+  .map-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .map-shell {
+    border: 1px solid rgba(36,31,27,0.34);
+    background:
+      linear-gradient(180deg, rgba(244,238,224,0.78), rgba(228,216,194,0.72));
+    box-shadow: var(--shadow);
+    padding: 14px;
+    position: relative;
+  }
+
+  .map-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid rgba(36,31,27,0.34);
+    background: rgba(239,232,216,0.62);
+  }
+
+  .map-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 10;
+    background:
+      linear-gradient(rgba(70, 52, 35, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(70, 52, 35, 0.035) 1px, transparent 1px);
+    background-size: 18px 18px;
+    mix-blend-mode: multiply;
+    opacity: 0.35;
+  }
+
+  .map-layer {
+    position: absolute;
+    inset: 0;
+    transform-origin: center center;
+    transition:
+      transform 0.78s cubic-bezier(.2,.75,.2,1),
+      opacity 0.28s ease,
+      filter 0.28s ease;
+  }
+
+  .map-layer.fading {
+    opacity: 0;
+  }
+
+  .map-layer.zooming {
+    filter: blur(0.7px);
+  }
+
+  .map-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+  }
+
+  .points-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+  }
+
+  .map-point {
+    position: absolute;
+    left: calc(var(--x) * 1%);
+    top: calc(var(--y) * 1%);
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: "Songti SC", "STSong", serif;
+  }
+
+  .map-point:hover,
+  .map-point:focus-visible,
+  .map-point.selected {
+    z-index: 40;
+  }
+
+  .map-point.has-bubble:hover,
+  .map-point.has-bubble:focus-visible,
+  .map-point.has-bubble.selected {
+    z-index: 200;
+  }
+
+  .map-point::before {
+    content: "";
+    display: block;
+    position: relative;
+    z-index: 5;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid rgba(239,232,216,0.94);
+    box-shadow: 0 0 0 5px rgba(49,84,68,0.16);
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, border-radius 0.2s ease;
+  }
+
+  .map-point.enter::before {
+    width: 19px;
+    height: 19px;
+    border-radius: 4px;
+    background: #9d2418;
+    border-color: rgba(255,244,224,0.96);
+    box-shadow:
+      0 0 0 5px rgba(157,36,24,0.18),
+      0 0 24px rgba(157,36,24,0.36);
+    transform: rotate(45deg);
+  }
+
+  .map-point:hover::before,
+  .map-point:focus-visible::before,
+  .map-point.selected::before {
+    transform: scale(1.26);
+    background: #3f6c58;
+    box-shadow:
+      0 0 0 6px rgba(49,84,68,0.22),
+      0 0 28px rgba(49,84,68,0.34);
+  }
+
+  .map-point.enter:hover::before,
+  .map-point.enter:focus-visible::before,
+  .map-point.enter.selected::before {
+    transform: rotate(45deg) scale(1.26);
+    background: #b24a28;
+    box-shadow:
+      0 0 0 6px rgba(157,36,24,0.22),
+      0 0 28px rgba(157,36,24,0.34);
+  }
+
+  .map-label {
+    position: absolute;
+    left: 50%;
+    top: -36px;
+    transform: translateX(-50%);
+    z-index: 6;
+    white-space: nowrap;
+    padding: 4px 9px;
+    border: 1px solid rgba(36,31,27,0.28);
+    background: rgba(239,232,216,0.92);
+    color: #241f1b;
+    font-size: 14px;
+    letter-spacing: 0.12em;
+    opacity: 1;
+    pointer-events: none;
+    transition: 0.2s ease;
+    box-shadow: 0 4px 12px rgba(36,31,27,0.10);
+  }
+
+  .map-point:hover .map-label,
+  .map-point:focus-visible .map-label,
+  .map-point.selected .map-label {
+    top: -40px;
+    color: var(--cinnabar);
+  }
+
+  .point-bubble {
+    position: absolute;
+    left: 34px;
+    bottom: -15px;
+    width: 210px;
+    padding: 7px;
+    border: 1px solid rgba(36,31,27,0.32);
+    background: rgba(248,240,222,0.96);
+    box-shadow:
+      0 18px 34px rgba(36,31,27,0.22),
+      0 0 0 4px rgba(239,232,216,0.32);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px) scale(0.98);
+    transition: 0.2s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .point-bubble.bubble-left {
+    left: auto;
+    right: 34px;
+    bottom: -15px;
+  }
+
+  .point-bubble::after {
+    content: "";
+    position: absolute;
+    left: -7px;
+    bottom: 18px;
+    width: 12px;
+    height: 12px;
+    background: rgba(248,240,222,0.96);
+    border-left: 1px solid rgba(36,31,27,0.32);
+    border-bottom: 1px solid rgba(36,31,27,0.32);
+    transform: rotate(45deg);
+  }
+
+  .point-bubble.bubble-left::after {
+    left: auto;
+    right: -7px;
+    bottom: 18px;
+    border-left: none;
+    border-bottom: none;
+    border-right: 1px solid rgba(36,31,27,0.32);
+    border-top: 1px solid rgba(36,31,27,0.32);
+  }
+
+  .point-bubble img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid rgba(36,31,27,0.18);
+    background: rgba(239,232,216,0.74);
+  }
+
+  .map-point:hover .point-bubble,
+  .map-point:focus-visible .point-bubble,
+  .map-point.selected .point-bubble {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+  }
+
+  .map-page.view-huai .map-label,
+  .map-page.view-yan .map-label,
+  .map-page.view-shuo .map-label,
+  .map-page.view-zhushan .map-label,
+  .map-page.view-huaijun .map-label,
+  .map-page.view-huaiwangfu .map-label,
+  .map-page.view-zhangshiyuan .map-label {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    padding: 2px 5px;
+    top: -26px;
+  }
+
+  .map-page.view-huai .map-point:hover .map-label,
+  .map-page.view-huai .map-point:focus-visible .map-label,
+  .map-page.view-huai .map-point.selected .map-label,
+  .map-page.view-yan .map-point:hover .map-label,
+  .map-page.view-yan .map-point:focus-visible .map-label,
+  .map-page.view-yan .map-point.selected .map-label,
+  .map-page.view-shuo .map-point:hover .map-label,
+  .map-page.view-shuo .map-point:focus-visible .map-label,
+  .map-page.view-shuo .map-point.selected .map-label,
+  .map-page.view-zhushan .map-point:hover .map-label,
+  .map-page.view-zhushan .map-point:focus-visible .map-label,
+  .map-page.view-zhushan .map-point.selected .map-label,
+  .map-page.view-huaijun .map-point:hover .map-label,
+  .map-page.view-huaijun .map-point:focus-visible .map-label,
+  .map-page.view-huaijun .map-point.selected .map-label,
+  .map-page.view-huaiwangfu .map-point:hover .map-label,
+  .map-page.view-huaiwangfu .map-point:focus-visible .map-label,
+  .map-page.view-huaiwangfu .map-point.selected .map-label,
+  .map-page.view-zhangshiyuan .map-point:hover .map-label,
+  .map-page.view-zhangshiyuan .map-point:focus-visible .map-label,
+  .map-page.view-zhangshiyuan .map-point.selected .map-label {
+    top: -29px;
+  }
+
+  .map-tip {
+    margin-top: 12px;
+    color: rgba(36,31,27,0.62);
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .info-card {
+    min-height: 280px;
+    border: 1px solid rgba(36,31,27,0.30);
+    background:
+      linear-gradient(180deg, rgba(251,243,228,0.82), rgba(239,232,216,0.72));
+    box-shadow: var(--shadow);
+    padding: 20px;
+    position: sticky;
+    top: 24px;
+  }
+
+  .info-card .small {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--cinnabar);
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .info-card h2 {
+    font-size: 28px;
+    letter-spacing: 0.14em;
+    color: var(--deep);
+    margin-bottom: 12px;
+  }
+
+  .info-card p {
+    font-size: 15px;
+    line-height: 1.85;
+    color: rgba(36,31,27,0.82);
+    text-align: justify;
+  }
+
+  .related-ocs {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(36,31,27,0.14);
+  }
+
+  .related-ocs-title {
+    margin-bottom: 10px;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: rgba(136,58,30,0.82);
+  }
+
+  .oc-list {
+    display: grid;
+    gap: 9px;
+  }
+
+  .oc-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 9px;
+    border: 1px solid rgba(36,31,27,0.18);
+    background: rgba(255,250,240,0.58);
+    color: var(--ink);
+    transition: 0.18s ease;
+  }
+
+  .oc-card:hover {
+    transform: translateY(-1px);
+    border-color: rgba(136,58,30,0.34);
+    background: rgba(136,58,30,0.08);
+    color: var(--cinnabar);
+  }
+
+  .oc-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(36,31,27,0.22);
+    background: rgba(239,232,216,0.8);
+    flex: 0 0 auto;
+  }
+
+  .oc-name {
+    font-family: "Songti SC", "STSong", serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .oc-note {
+    display: block;
+    margin-top: 1px;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: rgba(36,31,27,0.54);
+  }
+
+  .info-card .path {
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(36,31,27,0.18);
+    color: rgba(36,31,27,0.56);
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    color: rgba(36,31,27,0.62);
+  }
+
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .legend span::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--green);
+    border: 2px solid rgba(239,232,216,0.94);
+    box-shadow: 0 0 0 4px rgba(49,84,68,0.13);
+  }
+
+  .legend .enter-dot::before {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: #9d2418;
+    box-shadow: 0 0 0 4px rgba(157,36,24,0.20);
+    transform: rotate(45deg);
+  }
+
+  @media (max-width: 860px) {
+    body {
+      padding: 16px;
+    }
+
+    .topbar {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .nav-actions {
+      justify-content: flex-start;
+    }
+
+    .map-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .info-card {
+      position: relative;
+      top: auto;
+      min-height: auto;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .map-page {
+      width: 100%;
+      padding-top: 12px;
+    }
+
+    h1 {
+      font-size: 30px;
+    }
+
+    .map-shell {
+      padding: 10px;
+    }
+
+    .map-stage {
+      aspect-ratio: 4 / 3;
+    }
+
+    .map-label {
+      top: -30px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      padding: 2px 6px;
+    }
+
+    .map-point:hover .map-label,
+    .map-point:focus-visible .map-label,
+    .map-point.selected .map-label {
+      top: -33px;
+    }
+
+    .map-page.view-huai .map-label,
+    .map-page.view-yan .map-label,
+    .map-page.view-shuo .map-label,
+    .map-page.view-zhushan .map-label,
+    .map-page.view-huaijun .map-label,
+    .map-page.view-huaiwangfu .map-label,
+    .map-page.view-zhangshiyuan .map-label {
+      font-size: 8px;
+      letter-spacing: 0.02em;
+      padding: 1px 4px;
+      top: -22px;
+    }
+
+    .map-page.view-huai .map-point:hover .map-label,
+    .map-page.view-huai .map-point:focus-visible .map-label,
+    .map-page.view-huai .map-point.selected .map-label,
+    .map-page.view-yan .map-point:hover .map-label,
+    .map-page.view-yan .map-point:focus-visible .map-label,
+    .map-page.view-yan .map-point.selected .map-label,
+    .map-page.view-shuo .map-point:hover .map-label,
+    .map-page.view-shuo .map-point:focus-visible .map-label,
+    .map-page.view-shuo .map-point.selected .map-label,
+    .map-page.view-zhushan .map-point:hover .map-label,
+    .map-page.view-zhushan .map-point:focus-visible .map-label,
+    .map-page.view-zhushan .map-point.selected .map-label,
+    .map-page.view-huaijun .map-point:hover .map-label,
+    .map-page.view-huaijun .map-point:focus-visible .map-label,
+    .map-page.view-huaijun .map-point.selected .map-label,
+    .map-page.view-huaiwangfu .map-point:hover .map-label,
+    .map-page.view-huaiwangfu .map-point:focus-visible .map-label,
+    .map-page.view-huaiwangfu .map-point.selected .map-label,
+    .map-page.view-zhangshiyuan .map-point:hover .map-label,
+    .map-page.view-zhangshiyuan .map-point:focus-visible .map-label,
+    .map-page.view-zhangshiyuan .map-point.selected .map-label {
+      top: -25px;
+    }
+
+    .point-bubble {
+      left: 24px;
+      bottom: -14px;
+      width: 160px;
+      padding: 5px;
+    }
+
+    .point-bubble.bubble-left {
+      right: 24px;
+      bottom: -14px;
+    }
+
+    .point-bubble::after,
+    .point-bubble.bubble-left::after {
+      bottom: 14px;
+    }
+
+    .map-point::before {
+      width: 12px;
+      height: 12px;
+    }
+
+    .map-point.enter::before {
+      width: 16px;
+      height: 16px;
+    }
+
+    .info-card h2 {
+      font-size: 24px;
+    }
+
+    .oc-avatar {
+      width: 32px;
+      height: 32px;
+    }
+
+    .oc-name {
+      font-size: 15px;
+    }
+  }
+  /* 与人物志、记闻统一的页面外观 */
+  @font-face {
+    font-family: Zhaohua;
+    src: url("./fonts/hgx314zt77rT4VM7jffeaVGmA.ttf") format("truetype");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: SourceHan;
+    src: url("./fonts/hief7Umr6mqzKUO37He3NcwPo14.otf") format("opentype");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: Qiji;
+    src: url("./fonts/cRlCeCBTN82rySwblecgchyzq4I.ttf") format("truetype");
+    font-display: swap;
+  }
+
+  :root {
+    --page: #ebdfda;
+    --banner: #8a7d70;
+    --panel: rgba(217, 205, 202, .72);
+    --card: rgba(255, 255, 255, .60);
+    --card-hover: rgba(255, 255, 255, .78);
+    --ink: #685d53;
+    --deep: #685d53;
+    --cinnabar: #8a7d70;
+    --green: #8a7d70;
+    --paper: #ebdfda;
+    --line: rgba(104, 93, 83, .34);
+    --muted: rgba(105, 94, 84, .72);
+    --shadow: 0 18px 48px rgba(71, 61, 49, .10);
+    --display: Qiji, Zhaohua, "STKaiti", serif;
+  }
+
+  html { background: var(--page); }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: SourceHan, "Songti SC", serif;
+  }
+
+  body::before { display: none; }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    height: 76px;
+    padding: 0 clamp(28px, 6vw, 96px);
+    display: flex;
+    align-items: center;
+    background: var(--banner);
+    border-bottom: 1px solid rgba(71, 61, 49, .22);
+  }
+
+  .site-nav {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: clamp(28px, 4vw, 62px);
+    margin-right: auto;
+  }
+
+  .site-nav a {
+    color: #fff;
+    white-space: nowrap;
+    font: 400 24px/1 Zhaohua, SourceHan, serif;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .site-nav a:hover,
+  .site-nav a:focus-visible {
+    opacity: .76;
+    transform: scale(1.06);
+  }
+
+  .account {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    color: transparent;
+    font-size: 0;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+
+  .account::before,
+  .account::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 3px solid #fff;
+  }
+
+  .account::before {
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  .account::after {
+    bottom: 4px;
+    width: 24px;
+    height: 12px;
+    border-radius: 18px 18px 4px 4px;
+  }
+
+  .account:hover,
+  .account:focus-visible { opacity: .76; transform: scale(1.06); }
+
+  .menu-toggle { display: none; }
+
+  .map-page {
+    width: min(1210px, calc(100% - 64px));
+    margin: 44px auto 56px;
+    padding: clamp(42px, 5vw, 64px);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+
+  .topbar { margin-bottom: 32px; }
+  .page-heading { width: max-content; max-width: 100%; margin: 0; }
+  .page-heading h1 { margin: 0; color: var(--ink); font: 400 clamp(45px, 5vw, 68px)/1.1 var(--display); letter-spacing: .04em; }
+  .page-heading p { margin: 27px 0 0; color: var(--muted); font: 18px/1.2 Georgia, serif; letter-spacing: .12em; }
+
+  .map-btn {
+    border: 0;
+    border-radius: 18px;
+    background: var(--card);
+    color: var(--ink);
+  }
+
+  .map-btn:hover { background: var(--card-hover); color: var(--ink); }
+  .home-link { display: none; }
+
+  .map-shell,
+  .map-stage,
+  .info-card {
+    border: 0;
+    background: var(--card);
+    box-shadow: 0 8px 22px rgba(71, 61, 49, .06);
+  }
+
+  .map-stage::after { display: none; }
+  .map-tip { color: var(--muted); }
+  .legend { border-top-color: var(--line); }
+
+  @media (max-width: 760px) {
+    .site-header { height: 62px; padding-inline: 18px; justify-content: space-between; }
+    .site-nav {
+      display: none;
+      position: absolute;
+      top: 62px;
+      left: 0;
+      right: 0;
+      height: auto;
+      padding: 10px 18px 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background: rgba(138, 125, 112, .98);
+      box-shadow: 0 12px 24px rgba(71, 61, 49, .14);
+    }
+    .site-nav.is-open { display: flex; }
+    .site-nav a { width: 100%; padding: 12px 14px; font-size: 20px; text-align: left; }
+    .menu-toggle {
+      width: 40px;
+      height: 40px;
+      padding: 9px 7px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+    }
+    .menu-toggle span { width: 100%; height: 2px; display: block; background: #fff; transition: .2s ease; }
+    .menu-toggle.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.is-open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .map-page { width: calc(100% - 24px); margin: 20px auto 28px; padding: 32px 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .map-page { width: 100%; margin: 0; padding: 30px 14px 38px; border-radius: 0; box-shadow: none; }
+    .account { display: none; }
+  }
+</style>
+</head>
+
+<body>
+  <header class="site-header">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航菜单">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="主导航">
+      <a href="./index.html">主页</a>
+      <a href="./characters/index.html">人物志</a>
+      <a href="./story/index.html">记闻</a>
+      <a href="./map.html" aria-current="page">地图</a>
+      <a href="./timeline.html">时间线</a>
+      <a href="./fanfic.html">杂谈</a>
+    </nav>
+    <a class="account" href="./user.html" aria-label="泥的用户中心">泥</a>
+  </header>
+  <main class="map-page view-world" id="mapPage">
+    <header class="topbar">
+      <div class="page-heading">
+        <h1 id="mapTitle">四方·地图</h1>
+        <p>Map</p>
+      </div>
+
+      <nav class="nav-actions" aria-label="地图导航">
+        <button class="map-btn" type="button" id="backBtn">返回上一级</button>
+        <button class="map-btn" type="button" id="worldBtn">返回大地图</button>
+      </nav>
+    </header>
+
+    <section class="map-layout">
+      <div>
+        <div class="map-shell">
+          <div class="map-stage" aria-label="互动地图">
+            <div class="map-layer" id="mapLayer">
+              <img
+                class="map-img"
+                id="mapImage"
+                src="https://f2.toyhou.se/file/f2-toyhou-se/images/121283569_b7bp1ZOUUySr670.jpg"
+                alt="四方地图"
+              >
+              <div class="points-layer" id="pointsLayer"></div>
+            </div>
+          </div>
+
+          <p class="map-tip">
+            电脑端：悬停显示简介，点击进入该区域地图
+            <br>
+            手机端：单击显示简介，双击进入该区域地图
+            <br>
+            图片由易制地图制作
+          </p>
+
+          <div class="legend">
+            <span class="enter-dot">可进入下一层</span>
+            <span>仅显示简介</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="info-card" id="mapInfo">
+        <p class="small">LOCATION</p>
+        <h2>四方地图</h2>
+        <p>点击“淮、晏、朔、烛山”进入局部放大视图。淮中的“淮郡”可继续进入城内地图，其余城市先显示简介。</p>
+        <div class="path">当前层级：四方地图</div>
+      </aside>
+    </section>
+  </main>
+
+<script>
+  const menuButton = document.querySelector(".menu-toggle");
+  const siteNav = document.querySelector(".site-nav");
+
+  menuButton.addEventListener("click", () => {
+    const isOpen = siteNav.classList.toggle("is-open");
+    menuButton.classList.toggle("is-open", isOpen);
+    menuButton.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  siteNav.addEventListener("click", event => {
+    if (event.target.closest("a") && window.innerWidth <= 760) {
+      siteNav.classList.remove("is-open");
+      menuButton.classList.remove("is-open");
+      menuButton.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  const WORLD_MAP = "https://f2.toyhou.se/file/f2-toyhou-se/images/121283569_b7bp1ZOUUySr670.jpg";
+  const HUAIJUN_MAP = "https://f2.toyhou.se/file/f2-toyhou-se/images/121325085_lyWpx7h2x1eIiaN.jpg";
+  const HUAIWANGFU_MAP = "https://f2.toyhou.se/file/f2-toyhou-se/images/121325083_LCi5P93upz322X9.jpg";
+  const ZHANGSHIYUAN_MAP = "https://f2.toyhou.se/file/f2-toyhou-se/images/121325083_LCi5P93upz322X9.jpg";
+
+  const BUBBLE_HOUYUAN = "https://f2.toyhou.se/file/f2-toyhou-se/images/121326775_aKTdg0LY87tm30U.jpg";
+  const BUBBLE_YISHITING = "https://f2.toyhou.se/file/f2-toyhou-se/images/121326777_kQrPoazWpUf8yGb.jpg";
+
+  const views = {
+    world: {
+      title: "四方地图",
+      image: WORLD_MAP,
+      transform: "scale(1) translate(0, 0)",
+      back: null,
+      path: "四方地图",
+      points: [
+        {
+          name: "烛山",
+          x: 19,
+          y: 29,
+          type: "enter",
+          target: "zhushan",
+          enterMode: "zoom",
+          desc: "西境山地，诸部皆为母系氏族，掌矿冶炼金、药理与机关之术。"
+        },
+        {
+          name: "朔",
+          x: 75,
+          y: 16,
+          type: "enter",
+          target: "shuo",
+          enterMode: "zoom",
+          desc: "北境之域，多设军府，马场、演武场与兵器库构成其根基。"
+        },
+        {
+          name: "晏",
+          x: 51,
+          y: 45,
+          type: "enter",
+          target: "yan",
+          enterMode: "zoom",
+          desc: "旧朝正统所在，礼制与官署尚存，天子势弱，权势逐渐流散。"
+        },
+        {
+          name: "淮",
+          x: 47,
+          y: 78,
+          type: "enter",
+          target: "huai",
+          enterMode: "zoom",
+          desc: "南方水乡，以水路为主干道，粮运便捷，百姓安居乐业。"
+        }
+      ]
+    },
+
+    huai: {
+      title: "淮",
+      image: WORLD_MAP,
+      transform: "scale(2.35) translate(2%, -30%)",
+      back: "world",
+      path: "四方地图 / 淮",
+      points: [
+        {
+          name: "淮郡",
+          x: 47,
+          y: 78,
+          type: "enter",
+          target: "huaijun",
+          enterMode: "image",
+          desc: "淮国都城，淮王府所在，淮国政治与水运中心。"
+        },
+        {
+          name: "蘅浦",
+          x: 40,
+          y: 75,
+          type: "info",
+          desc: "水草丰美之地，风物清逸，不少书院建于此地。"
+        },
+        {
+          name: "望津",
+          x: 54,
+          y: 76,
+          type: "info",
+          desc: "淮国要地，漕运商船往来不绝，粮道、盐务与书信流转之地。"
+        },
+        {
+          name: "偃渚",
+          x: 58,
+          y: 83,
+          type: "info",
+          desc: "烟水迷离，洲泽之地，多为隐居者与水上人家所居之处。"
+        },
+        {
+          name: "江亭",
+          x: 36,
+          y: 83,
+          type: "info",
+          desc: "临水小城，客栈与渡船相邻，常为远行、短暂停驻之地。"
+        }
+      ]
+    },
+
+    yan: {
+      title: "晏",
+      image: WORLD_MAP,
+      transform: "scale(2.15) translate(-1%, 4%)",
+      back: "world",
+      path: "四方地图 / 晏",
+      points: [
+        {
+          name: "晏都",
+          x: 51,
+          y: 45,
+          type: "info",
+          desc: "旧朝都城，皇宫所在之处，正统尚存但政令难行。"
+        },
+        {
+          name: "承京",
+          x: 45,
+          y: 49,
+          type: "info",
+          desc: "都城外郭，前朝遗民与旁落士族聚居之处。"
+        },
+        {
+          name: "奉陵",
+          x: 56,
+          y: 38,
+          type: "info",
+          desc: "晏朝历代帝王陵寝所在，显露旧朝余威。"
+        },
+        {
+          name: "昭台",
+          x: 58,
+          y: 51,
+          type: "info",
+          desc: "钦天监观星之处，高子谏常来此处问星象之事，以吉凶之辞来定政令。"
+        }
+      ]
+    },
+
+    shuo: {
+      title: "朔",
+      image: WORLD_MAP,
+      transform: "scale(2.25) translate(-28%, 28%)",
+      back: "world",
+      path: "四方地图 / 朔",
+      points: [
+        {
+          name: "玄塞",
+          x: 70,
+          y: 13,
+          type: "info",
+          desc: "北境要塞，风雪严寒，兵马出入必经之处。"
+        },
+        {
+          name: "白狼",
+          x: 80,
+          y: 20,
+          type: "info",
+          desc: "边地军城，马场与军寨相连，骑兵多于此处进行演练。"
+        },
+        {
+          name: "朔方",
+          x: 74,
+          y: 25,
+          type: "info",
+          desc: "朔国都城，朔王府所在，朔国政治与军事中心。"
+        },
+        {
+          name: "铁原",
+          x: 66,
+          y: 23,
+          type: "info",
+          desc: "铸铁屯田之地，供给军械、马具与粮草。"
+        }
+      ]
+    },
+
+    zhushan: {
+      title: "烛山",
+      image: WORLD_MAP,
+      transform: "scale(2.35) translate(30%, 22%)",
+      back: "world",
+      path: "四方地图 / 烛山",
+      points: [
+        {
+          name: "火塘寨",
+          x: 19,
+          y: 29,
+          type: "info",
+          desc: "烛山诸部议事之地，巫祝与各寨使者常在此处。"
+        },
+        {
+          name: "青岚谷",
+          x: 25,
+          y: 21,
+          type: "info",
+          desc: "烛山药谷，药香常年不散，药术与巫祝传承之地。"
+        },
+        {
+          name: "乌金峒",
+          x: 14,
+          y: 36,
+          type: "info",
+          desc: "矿冶炼金之地，炉火长明，铁器与机关材料多出此地。"
+        },
+        {
+          name: "神誓坛",
+          x: 28,
+          y: 34,
+          type: "info",
+          desc: "族人盟誓之地，诸部联姻、颁布政令皆由此立。"
+        }
+      ]
+    },
+
+    huaijun: {
+      title: "淮郡",
+      image: HUAIJUN_MAP,
+      transform: "scale(1) translate(0, 0)",
+      back: "huai",
+      path: "四方地图 / 淮 / 淮郡",
+      points: [
+        {
+          name: "淮王府",
+          x: 50,
+          y: 36,
+          type: "enter",
+          target: "huaiwangfu",
+          enterMode: "image",
+          desc: "淮王齐临川居、执务之处，设正堂、议事厅与内书房。"
+        },
+        {
+          name: "世子府",
+          x: 58,
+          y: 47,
+          type: "info",
+          desc: "齐斐与冯瑛婚后所居，别第近王府，内设侍从、护卫与书房，凡大事仍入淮王府议决。",
+          ocs: [
+            {
+              name: "齐斐",
+              note: "世子",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121619787_3qzKihTYCNGozR5.jpg",
+              link: "qifei.html"
+            },
+            {
+              name: "冯瑛",
+              note: "世子夫人",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121387387_wSgtGQod5bUZ9ed.png",
+              link: "fengying.html"
+            }
+          ]
+        },
+        {
+          name: "集市",
+          x: 60,
+          y: 68,
+          type: "info",
+          desc: "淮郡百业汇聚之处，舟商、工匠、药铺与行会往来不绝。"
+        },
+        {
+          name: "演武场",
+          x: 36,
+          y: 54,
+          type: "info",
+          desc: "淮国练兵之地，齐斐、齐琅常来此处与军士一同操练。"
+        },
+        {
+          name: "将军府",
+          x: 46,
+          y: 80,
+          type: "info",
+          desc: "镇国大将军郑昌延之府第，府中多存军籍、文书与各类长枪。",
+          ocs: [
+            {
+              name: "郑麒华",
+              note: "将军",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/122074554_asZ51u1bmWJjbCL.jpg",
+              link: "zhengqihua.html"
+            },
+            {
+              name: "郑麟书",
+              note: "校尉",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/122074551_1ks0PpjOpmS4MKf.png",
+              link: "zhenglinshu.html"
+            }
+          ]
+        },
+        {
+          name: "记室院",
+          x: 44,
+          y: 52,
+          type: "info",
+          desc: "姜玄居住、撰写文章之处，书卷气与酒香混在一处。",
+          ocs: [
+            {
+              name: "姜玄",
+              note: "记室参军",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121504550_V6fMtc9Gvi0XHGo.png",
+              link: "jiangxuan.html"
+            }
+          ]
+        },
+        {
+          name: "长史院",
+          x: 42,
+          y: 35,
+          type: "enter",
+          target: "zhangshiyuan",
+          enterMode: "image",
+          desc: "詹明居住、办公之处，靠近议事厅，烛火常燃不熄。",
+          ocs: [
+            {
+              name: "詹明",
+              note: "长史",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121387383_cHHUtkwjkmzOG7e.png",
+              link: "zhanming.html"
+            }
+          ]
+        },
+        {
+          name: "司工署",
+          x: 35,
+          y: 66,
+          type: "info",
+          desc: "辛夷居住、研究工械、营造机关之处，图纸、木石与铁器堆满案头。",
+          ocs: [
+            {
+              name: "辛夷",
+              note: "司工参军",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121322736_WYEwp1wbYAzmRAu.jpg",
+              link: "xinyi.html"
+            }
+          ]
+        },
+        {
+          name: "缘会楼",
+          x: 68,
+          y: 72,
+          type: "info",
+          desc: "叶栖迟经营的茶楼，往来商客与闲人皆聚于此，也是各方势力传递情报之处。",
+          ocs: [
+            {
+              name: "叶栖迟",
+              note: "茶楼老板",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121322733_aDz1EeohbXzJ0xv.png",
+              link: "yeqichi.html"
+            }
+          ]
+        }
+      ]
+    },
+
+    huaiwangfu: {
+      title: "淮王府",
+      image: HUAIWANGFU_MAP,
+      transform: "scale(1) translate(0, 0)",
+      back: "huaijun",
+      path: "四方地图 / 淮 / 淮郡 / 淮王府",
+      points: [
+        {
+          name: "正堂",
+          x: 50,
+          y: 34,
+          type: "info",
+          desc: "淮王府正堂，接见使者、宣召属官、执务之处。"
+        },
+        {
+          name: "议事厅",
+          x: 50,
+          y: 50,
+          type: "info",
+          desc: "齐临川与臣子议政之所，粮运、城防、军事等诸多事项在此商议。",
+          bubble: {
+            image: BUBBLE_YISHITING,
+            alt: "淮王府议事厅小景",
+            position: "bubble-left"
+          }
+        },
+        {
+          name: "内书房",
+          x: 62,
+          y: 45,
+          type: "info",
+          desc: "齐临川批复文书、处理密奏、召见近臣之处，未尽传召不得擅入。"
+        },
+        {
+          name: "西院",
+          x: 34,
+          y: 54,
+          type: "info",
+          desc: "齐琅日常起居、读书习武之处，位于王府西侧。",
+          ocs: [
+            {
+              name: "齐琅",
+              note: "二公子",
+              avatar: "https://f2.toyhou.se/file/f2-toyhou-se/images/121619790_8QdiarnvxQ96in0.png",
+              link: "qilang.html"
+            }
+          ]
+        }
+      ]
+    },
+
+    zhangshiyuan: {
+      title: "长史院",
+      image: ZHANGSHIYUAN_MAP,
+      transform: "scale(1) translate(0, 0)",
+      back: "huaijun",
+      path: "四方地图 / 淮 / 淮郡 / 长史院",
+      points: [
+        {
+          name: "书房",
+          x: 48,
+          y: 42,
+          type: "info",
+          desc: "詹明批阅公文、推演局势、整理文书之处，案前常堆满地图、简牍与墨迹。"
+        },
+        {
+          name: "后院",
+          x: 54,
+          y: 66,
+          type: "info",
+          desc: "长史院后侧小院，清静少人。詹明会于此暂歇、读书或接待亲信。",
+          bubble: {
+            image: BUBBLE_HOUYUAN,
+            alt: "长史院后院小景"
+          }
+        }
+      ]
+    }
+  };
+
+  let currentView = "world";
+  let historyStack = [];
+  let selectedPointKey = null;
+  const isTouchDevice = window.matchMedia("(hover: none)").matches;
+
+  const mapPage = document.querySelector("#mapPage");
+  const mapLayer = document.querySelector("#mapLayer");
+  const mapImage = document.querySelector("#mapImage");
+  const pointsLayer = document.querySelector("#pointsLayer");
+  const mapTitle = document.querySelector("#mapTitle");
+  const mapInfo = document.querySelector("#mapInfo");
+  const backBtn = document.querySelector("#backBtn");
+  const worldBtn = document.querySelector("#worldBtn");
+
+  function setViewClass(viewName) {
+    mapPage.classList.remove(
+      "view-world",
+      "view-huai",
+      "view-yan",
+      "view-shuo",
+      "view-zhushan",
+      "view-huaijun",
+      "view-huaiwangfu",
+      "view-zhangshiyuan"
+    );
+
+    mapPage.classList.add(`view-${viewName}`);
+  }
+
+  function renderRelatedOCs(point) {
+    if (!point.ocs || point.ocs.length === 0) {
+      return "";
+    }
+
+    return `
+      <div class="related-ocs">
+        <div class="related-ocs-title">相关人物</div>
+        <div class="oc-list">
+          ${point.ocs.map((oc) => `
+            <a class="oc-card" href="${oc.link}">
+              <img class="oc-avatar" src="${oc.avatar}" alt="${oc.name}">
+              <span>
+                <span class="oc-name">${oc.name}</span>
+                <span class="oc-note">${oc.note || "查看人设卡"}</span>
+              </span>
+            </a>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  function showInfo(point) {
+    const modeText = point.type === "enter" ? "可进入下一层" : "地点简介";
+
+    mapInfo.innerHTML = `
+      <p class="small">${modeText}</p>
+      <h2>${point.name}</h2>
+      <p>${point.desc}</p>
+      ${renderRelatedOCs(point)}
+      <div class="path">当前层级：${views[currentView].path}</div>
+    `;
+  }
+
+  function showViewInfo(view) {
+    mapInfo.innerHTML = `
+      <p class="small">LOCATION</p>
+      <h2>${view.title}</h2>
+      <p>悬停或点击地点查看简介。</p>
+      <div class="path">当前层级：${view.path}</div>
+    `;
+  }
+
+  function clearSelectedPoint() {
+    document.querySelectorAll(".map-point").forEach((point) => {
+      point.classList.remove("selected");
+    });
+  }
+
+  function renderBubble(point) {
+    if (!point.bubble || !point.bubble.image) {
+      return "";
+    }
+
+    const positionClass = point.bubble.position || "";
+
+    return `
+      <span class="point-bubble ${positionClass}" aria-hidden="true">
+        <img src="${point.bubble.image}" alt="${point.bubble.alt || point.name}">
+      </span>
+    `;
+  }
+
+  function renderPoints(view) {
+    pointsLayer.innerHTML = "";
+
+    view.points.forEach((point) => {
+      const btn = document.createElement("button");
+      btn.className = `map-point ${point.type}${point.bubble ? " has-bubble" : ""}`;
+      btn.type = "button";
+      btn.style.setProperty("--x", point.x);
+      btn.style.setProperty("--y", point.y);
+      btn.setAttribute("aria-label", point.name);
+
+      btn.innerHTML = `
+        <span class="map-label">${point.name}</span>
+        ${renderBubble(point)}
+      `;
+
+      btn.addEventListener("mouseenter", () => {
+        if (!isTouchDevice) {
+          showInfo(point);
+        }
+      });
+
+      btn.addEventListener("focus", () => showInfo(point));
+
+      btn.addEventListener("click", () => {
+        showInfo(point);
+
+        const pointKey = `${currentView}-${point.name}`;
+
+        clearSelectedPoint();
+        btn.classList.add("selected");
+
+        if (point.type !== "enter" || !point.target) {
+          selectedPointKey = pointKey;
+          return;
+        }
+
+        if (isTouchDevice) {
+          if (selectedPointKey !== pointKey) {
+            selectedPointKey = pointKey;
+            return;
+          }
+        }
+
+        selectedPointKey = pointKey;
+        enterPoint(point);
+      });
+
+      pointsLayer.appendChild(btn);
+    });
+  }
+
+  function enterPoint(point) {
+    if (point.enterMode === "image") {
+      switchImageView(point.target, true);
+    } else {
+      showZoomView(point.target, true);
+    }
+  }
+
+  function showZoomView(viewName, pushHistory = true) {
+    const view = views[viewName];
+    if (!view) return;
+
+    selectedPointKey = null;
+
+    if (pushHistory && currentView !== viewName) {
+      historyStack.push(currentView);
+    }
+
+    currentView = viewName;
+    setViewClass(viewName);
+    mapTitle.textContent = view.title;
+    pointsLayer.innerHTML = "";
+
+    if (mapImage.src !== view.image) {
+      mapImage.src = view.image;
+    }
+
+    mapLayer.classList.add("zooming");
+    mapLayer.style.transform = view.transform;
+
+    setTimeout(() => {
+      mapLayer.classList.remove("zooming");
+      renderPoints(view);
+      showViewInfo(view);
+    }, 520);
+  }
+
+  function switchImageView(viewName, pushHistory = true) {
+    const view = views[viewName];
+    if (!view) return;
+
+    selectedPointKey = null;
+
+    if (pushHistory && currentView !== viewName) {
+      historyStack.push(currentView);
+    }
+
+    currentView = viewName;
+    setViewClass(viewName);
+    mapTitle.textContent = view.title;
+    pointsLayer.innerHTML = "";
+    mapLayer.classList.add("fading");
+
+    setTimeout(() => {
+      mapImage.src = view.image;
+      mapImage.alt = view.title;
+      mapLayer.style.transform = view.transform;
+
+      renderPoints(view);
+      showViewInfo(view);
+
+      requestAnimationFrame(() => {
+        mapLayer.classList.remove("fading");
+      });
+    }, 280);
+  }
+
+  function loadView(viewName, pushHistory = true) {
+    const view = views[viewName];
+    if (!view) return;
+
+    if (view.image === WORLD_MAP) {
+      showZoomView(viewName, pushHistory);
+    } else {
+      switchImageView(viewName, pushHistory);
+    }
+  }
+
+  function goBack() {
+    selectedPointKey = null;
+    const previous = historyStack.pop();
+
+    if (!previous) {
+      loadView("world", false);
+      return;
+    }
+
+    loadView(previous, false);
+  }
+
+  function goWorld() {
+    selectedPointKey = null;
+    historyStack = [];
+    currentView = "world";
+    setViewClass("world");
+
+    const view = views.world;
+
+    mapTitle.textContent = view.title;
+    pointsLayer.innerHTML = "";
+    mapLayer.classList.add("fading");
+
+    setTimeout(() => {
+      mapImage.src = view.image;
+      mapImage.alt = view.title;
+      mapLayer.style.transform = view.transform;
+      renderPoints(view);
+      showViewInfo(view);
+
+      requestAnimationFrame(() => {
+        mapLayer.classList.remove("fading");
+      });
+    }, 220);
+  }
+
+  backBtn.addEventListener("click", goBack);
+  worldBtn.addEventListener("click", goWorld);
+
+  renderPoints(views.world);
+  showViewInfo(views.world);
+</script>
+</body>
+</html>

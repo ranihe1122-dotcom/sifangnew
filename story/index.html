@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="四方人物志">
-  <title>四方 · 人物志</title>
+  <meta name="description" content="四方记闻目录">
+  <title>四方 · 记闻</title>
 
   <style>
     @font-face {
@@ -29,10 +29,12 @@
       --page: #ebdfda;
       --banner: #8a7d70;
       --panel: rgba(217, 205, 202, .72);
-      --card: rgba(255, 255, 255, .82);
+      --card: rgba(255, 255, 255, .60);
+      --card-hover: rgba(255, 255, 255, .78);
       --ink: #685d53;
       --muted: rgba(105, 94, 84, .72);
-      --line: rgba(104, 93, 83, .38);
+      --line: rgba(104, 93, 83, .34);
+      --node: #8a7d70;
       --shadow: rgba(71, 61, 49, .10);
       --serif: SourceHan, "Songti SC", "Noto Serif CJK SC", serif;
       --display: Qiji, Zhaohua, "STKaiti", serif;
@@ -43,6 +45,7 @@
     }
 
     html {
+      min-height: 100%;
       background: var(--page);
       scroll-behavior: smooth;
     }
@@ -77,7 +80,6 @@
     }
 
     .site-nav a {
-      position: relative;
       color: #fff;
       text-decoration: none;
       white-space: nowrap;
@@ -95,7 +97,7 @@
       position: relative;
       width: 40px;
       height: 40px;
-      color: #fff;
+      color: transparent;
       font-size: 0;
       text-decoration: none;
       transition: opacity .2s ease, transform .2s ease;
@@ -136,12 +138,12 @@
 
     .page-shell {
       width: min(1210px, calc(100% - 64px));
-      min-height: calc(100vh - 136px);
+      min-height: calc(100vh - 176px);
       margin: 44px auto 56px;
       padding: clamp(54px, 6vw, 78px);
       border-radius: 12px;
       background:
-        linear-gradient(rgba(217, 205, 202, .72), rgba(217, 205, 202, .72)),
+        linear-gradient(var(--panel), var(--panel)),
         repeating-linear-gradient(135deg, transparent 0 23px, rgba(255, 255, 255, .08) 24px 25px);
       box-shadow: 0 18px 48px var(--shadow);
     }
@@ -149,7 +151,7 @@
     .page-heading {
       width: max-content;
       max-width: 100%;
-      margin: 0 0 58px;
+      margin: 0 0 42px;
     }
 
     .page-heading h1 {
@@ -173,68 +175,102 @@
       letter-spacing: .12em;
     }
 
-    .character-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 24px 28px;
+    .timeline {
+      position: relative;
+      padding: 8px 0 10px 92px;
     }
 
-    .character-card {
-      min-width: 0;
-      height: 92px;
-      padding: 8px 20px 8px 8px;
+    .timeline::before {
+      content: "";
+      position: absolute;
+      top: 10px;
+      bottom: 12px;
+      left: 37px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--line) 7%, var(--line) 93%, transparent);
+    }
+
+    .story-entry {
+      position: relative;
+      min-height: 88px;
+      margin-bottom: 22px;
+      padding: 18px 22px 18px 26px;
       display: grid;
-      grid-template-columns: 76px minmax(0, 1fr);
+      grid-template-columns: 130px minmax(0, 1fr) auto;
       align-items: center;
-      color: var(--ink);
-      text-decoration: none;
-      border-radius: 48px;
+      gap: 24px;
+      border-radius: 4px;
       background: var(--card);
-      box-shadow: 0 8px 18px rgba(71, 61, 49, .055);
-      transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+      box-shadow: 0 8px 20px rgba(71, 61, 49, .055);
+      transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease;
     }
 
-    .character-card:hover,
-    .character-card:focus-visible {
-      transform: translateY(-3px);
-      background: rgba(255, 255, 255, .96);
-      box-shadow: 0 13px 24px rgba(71, 61, 49, .12);
-      outline: none;
+    .story-entry:last-child {
+      margin-bottom: 0;
     }
 
-    .character-card img {
-      width: 76px;
-      height: 76px;
-      display: block;
-      object-fit: cover;
+    .story-entry::before {
+      content: "";
+      position: absolute;
+      left: -61px;
+      top: 50%;
+      width: 13px;
+      height: 13px;
+      border: 4px solid var(--panel);
       border-radius: 50%;
+      background: var(--node);
+      box-shadow: 0 0 0 1px rgba(104, 93, 83, .28);
+      transform: translateY(-50%);
     }
 
-    .card-copy {
-      min-width: 0;
-      padding-left: 16px;
-      text-align: center;
+    .story-entry::after {
+      content: "";
+      position: absolute;
+      left: -44px;
+      top: 50%;
+      width: 44px;
+      height: 1px;
+      background: var(--line);
     }
 
-    .card-copy strong,
-    .card-copy span {
-      display: block;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .story-entry:hover,
+    .story-entry:focus-within {
+      transform: translateX(4px);
+      background: var(--card-hover);
+      box-shadow: 0 12px 28px rgba(71, 61, 49, .11);
+    }
+
+    .story-year {
+      color: var(--muted);
+      font-size: 16px;
       white-space: nowrap;
     }
 
-    .card-copy strong {
-      padding-bottom: 7px;
-      border-bottom: 1px solid rgba(104, 93, 83, .27);
-      font-size: 18px;
-      font-weight: 400;
+    .story-title {
+      min-width: 0;
+      margin: 0;
+      color: var(--ink);
+      font: 400 31px/1.2 Zhaohua, var(--serif);
+      letter-spacing: .04em;
     }
 
-    .card-copy span {
-      padding-top: 5px;
-      color: var(--muted);
-      font-size: 15px;
+    .story-link {
+      min-width: 108px;
+      padding: 8px 18px;
+      color: #fff;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 20px;
+      background: var(--banner);
+      font-size: 14px;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+
+    .story-link:hover,
+    .story-link:focus-visible {
+      opacity: .78;
+      transform: scale(1.04);
+      outline: none;
     }
 
     @media (max-width: 1100px) {
@@ -255,8 +291,8 @@
         padding: 58px;
       }
 
-      .character-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+      .story-entry {
+        grid-template-columns: 112px minmax(0, 1fr) auto;
       }
     }
 
@@ -334,12 +370,44 @@
       }
 
       .page-heading {
-        margin-bottom: 38px;
+        margin-bottom: 34px;
       }
 
-      .character-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
+      .timeline {
+        padding-left: 46px;
+      }
+
+      .timeline::before {
+        left: 14px;
+      }
+
+      .story-entry {
+        padding: 18px 18px;
+        grid-template-columns: 1fr auto;
+        gap: 8px 14px;
+      }
+
+      .story-entry::before {
+        left: -39px;
+      }
+
+      .story-entry::after {
+        left: -22px;
+        width: 22px;
+      }
+
+      .story-year {
+        grid-column: 1 / -1;
+        font-size: 14px;
+      }
+
+      .story-title {
+        font-size: 25px;
+      }
+
+      .story-link {
+        min-width: auto;
+        padding-inline: 14px;
       }
     }
 
@@ -347,8 +415,8 @@
       .page-shell {
         width: 100%;
         margin: 0;
+        padding: 34px 15px 42px;
         border-radius: 0;
-        padding: 34px 18px 42px;
         box-shadow: none;
       }
 
@@ -360,18 +428,29 @@
         font-size: 15px;
       }
 
-      .character-grid {
-        grid-template-columns: 1fr;
+      .timeline {
+        padding-left: 35px;
       }
 
-      .character-card {
-        height: 86px;
-        grid-template-columns: 70px minmax(0, 1fr);
+      .timeline::before {
+        left: 10px;
       }
 
-      .character-card img {
-        width: 70px;
-        height: 70px;
+      .story-entry::before {
+        left: -32px;
+      }
+
+      .story-entry::after {
+        left: -15px;
+        width: 15px;
+      }
+
+      .story-title {
+        font-size: 22px;
+      }
+
+      .story-link {
+        font-size: 12px;
       }
     }
 
@@ -392,8 +471,8 @@
 
     <nav id="site-nav" class="site-nav" aria-label="主导航">
       <a href="../index.html">主页</a>
-      <a href="./index.html" aria-current="page">人物志</a>
-      <a href="../story/index.html">记闻</a>
+      <a href="../characters/index.html">人物志</a>
+      <a href="./index.html" aria-current="page">记闻</a>
       <a href="../map.html">地图</a>
       <a href="../timeline.html">时间线</a>
       <a href="../fanfic.html">杂谈</a>
@@ -404,66 +483,35 @@
 
   <main class="page-shell">
     <header class="page-heading">
-      <h1>四方·人物志</h1>
+      <h1>四方·记闻</h1>
       <div class="heading-line" aria-hidden="true"></div>
-      <p>characters</p>
+      <p>Stories</p>
     </header>
 
-    <section class="character-grid" aria-label="角色列表">
-      <a class="character-card" href="./zhengqihua/index.html">
-        <img src="./zhengqihua/assets/images/avatar.png" alt="郑麒华头像">
-        <span class="card-copy"><strong>郑麒华</strong><span>「元锦」</span></span>
-      </a>
+    <section class="timeline" aria-label="记闻时间线">
+      <article class="story-entry">
+        <time class="story-year" datetime="0012">固元十二年</time>
+        <h2 class="story-title">朔风向淮</h2>
+        <a class="story-link" href="./shuofengxianghuai.html">查看正文</a>
+      </article>
 
-      <a class="character-card" href="./zhenglinshu/index.html">
-        <img src="./zhenglinshu/assets/images/avatar.png" alt="郑麟书头像">
-        <span class="card-copy"><strong>郑麟书</strong><span>「文尧」</span></span>
-      </a>
+      <article class="story-entry">
+        <time class="story-year" datetime="0017">固元十七年</time>
+        <h2 class="story-title">归去来</h2>
+        <a class="story-link" href="./story2.html">查看正文</a>
+      </article>
 
-      <a class="character-card" href="./zhongyue/index.html">
-        <img src="./zhongyue/assets/images/avatar.png" alt="钟月头像">
-        <span class="card-copy"><strong>钟月</strong><span>「上弦」</span></span>
-      </a>
-      
-      <a class="character-card" href="./yeqichi/index.html">
-        <img src="./yeqichi/assets/images/avatar.png" alt="钟月头像">
-        <span class="card-copy"><strong>叶栖迟</strong><span>「长安」</span></span>
-      </a>
+      <article class="story-entry">
+        <time class="story-year" datetime="0018">固元十八年</time>
+        <h2 class="story-title">碎玉</h2>
+        <a class="story-link" href="./story3.html">查看正文</a>
+      </article>
 
-      <a class="character-card" href="./jiangxuan/index.html">
-        <img src="./jiangxuan/assets/images/avatar.png" alt="姜玄头像">
-        <span class="card-copy"><strong>姜玄</strong><span>「子墨」</span></span>
-      </a>
-
-      <a class="character-card" href="./xinyi/index.html">
-        <img src="./xinyi/assets/images/avatar.png" alt="辛夷头像">
-        <span class="card-copy"><strong>辛夷</strong><span>「桑若」</span></span>
-      </a>
-
-      <a class="character-card" href="./zhanming/index.html">
-        <img src="./zhanming/assets/images/avatar.png" alt="詹明头像">
-        <span class="card-copy"><strong>詹明</strong><span>「无晦」</span></span>
-      </a>
-
-      <a class="character-card" href="./qifei/index.html">
-        <img src="./qifei/assets/images/avatar.png" alt="齐斐头像">
-        <span class="card-copy"><strong>齐斐</strong><span>「章华」</span></span>
-      </a>
-
-      <a class="character-card" href="./qilang/index.html">
-        <img src="./qilang/assets/images/avatar.png" alt="齐琅头像">
-        <span class="card-copy"><strong>齐琅</strong><span>「怀石」</span></span>
-      </a>
-
-      <a class="character-card" href="./fengying/index.html">
-        <img src="./fengying/assets/images/avatar.png" alt="冯瑛头像">
-        <span class="card-copy"><strong>冯瑛</strong><span>「令仪」</span></span>
-      </a>
-
-      <a class="character-card" href="./qinqin/index.html">
-        <img src="./qinqin/assets/images/avatar.png" alt="秦溱头像">
-        <span class="card-copy"><strong>秦溱</strong><span>「子渊」</span></span>
-      </a>
+      <article class="story-entry">
+        <time class="story-year" datetime="0020">固元二十年</time>
+        <h2 class="story-title">离章</h2>
+        <a class="story-link" href="./story4.html">查看正文</a>
+      </article>
     </section>
   </main>
 

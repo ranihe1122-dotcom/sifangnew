@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>四方志·时间线</title>
+
+<style>
+  :root {
+    --ink: #241f1b;
+    --deep: #2e201d;
+    --cinnabar: #883a1e;
+    --green: #315444;
+    --paper: #efe6d3;
+    --line: rgba(36,31,27,0.28);
+    --muted: rgba(36,31,27,0.66);
+    --shadow: 0 18px 42px rgba(36,31,27,0.16);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100vh;
+    padding: 28px;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(136,58,30,0.10), transparent 26rem),
+      linear-gradient(135deg, #efe6d3 0%, #d9c8ad 100%);
+    font-family: "Songti SC", "Noto Serif SC", "STSong", serif;
+    color: var(--ink);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(70, 52, 35, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(70, 52, 35, 0.035) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.72;
+    z-index: -1;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .page {
+    width: min(980px, calc(100% - 24px));
+    margin: 0 auto;
+    padding: 20px 0 56px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .eyebrow {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--cinnabar);
+    letter-spacing: 0.24em;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  h1 {
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: 1.1;
+    letter-spacing: 0.16em;
+    color: var(--deep);
+    font-weight: 800;
+  }
+
+  h1::after {
+    content: "";
+    display: block;
+    width: 76px;
+    height: 2px;
+    margin-top: 14px;
+    background: linear-gradient(90deg, var(--cinnabar), transparent);
+    opacity: 0.55;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-top: 6px;
+  }
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 13px;
+    border: 1px solid rgba(36,31,27,0.28);
+    background: rgba(239,232,216,0.72);
+    color: rgba(36,31,27,0.82);
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.18s ease;
+  }
+
+  .nav-link:hover {
+    background: rgba(136,58,30,0.10);
+    color: var(--cinnabar);
+    transform: translateY(-1px);
+  }
+
+  .intro-card {
+    margin-bottom: 20px;
+    padding: 18px 20px;
+    border: 1px solid rgba(36,31,27,0.28);
+    background:
+      linear-gradient(180deg, rgba(251,243,228,0.78), rgba(239,232,216,0.68));
+    box-shadow: var(--shadow);
+  }
+
+  .intro-card p {
+    font-size: 15px;
+    line-height: 1.85;
+    color: rgba(36,31,27,0.78);
+  }
+
+  .timeline-shell {
+    position: relative;
+    border: 1px solid rgba(36,31,27,0.32);
+    background:
+      linear-gradient(180deg, rgba(251,243,228,0.86), rgba(235,224,204,0.76));
+    box-shadow: var(--shadow);
+    padding: 26px 28px 30px;
+    overflow: hidden;
+  }
+
+  .timeline-shell::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(70, 52, 35, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(70, 52, 35, 0.035) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.55;
+  }
+
+  .timeline {
+    position: relative;
+    z-index: 1;
+  }
+
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    bottom: 10px;
+    width: 1px;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgba(136,58,30,0.48),
+      rgba(36,31,27,0.20),
+      transparent
+    );
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-left: 48px;
+    padding-bottom: 28px;
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline-item::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 9px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--cinnabar);
+    border: 2px solid rgba(248,240,222,0.96);
+    box-shadow:
+      0 0 0 5px rgba(136,58,30,0.14),
+      0 0 18px rgba(136,58,30,0.22);
+  }
+
+  .year {
+    display: inline-block;
+    margin-bottom: 10px;
+    padding: 4px 10px;
+    border: 1px solid rgba(136,58,30,0.24);
+    background: rgba(136,58,30,0.08);
+    color: var(--cinnabar);
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+  }
+
+  .event-list {
+    display: grid;
+    gap: 7px;
+  }
+
+  .event-list p {
+    color: rgba(36,31,27,0.86);
+    font-size: 15px;
+    line-height: 1.9;
+    text-align: justify;
+  }
+
+  .footer-note {
+    margin-top: 18px;
+    color: rgba(36,31,27,0.56);
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 760px) {
+    body {
+      padding: 16px;
+    }
+
+    .page {
+      width: 100%;
+      padding-top: 12px;
+    }
+
+    .topbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .nav-actions {
+      justify-content: flex-start;
+      padding-top: 0;
+    }
+
+    h1 {
+      font-size: 32px;
+    }
+
+    .timeline-shell {
+      padding: 22px 18px 26px;
+    }
+
+    .timeline::before {
+      left: 11px;
+    }
+
+    .timeline-item {
+      padding-left: 36px;
+      padding-bottom: 26px;
+    }
+
+    .timeline-item::before {
+      left: 5px;
+      top: 9px;
+    }
+
+    .year {
+      font-size: 16px;
+      letter-spacing: 0.08em;
+    }
+
+    .event-list p {
+      font-size: 14px;
+      line-height: 1.85;
+    }
+  }
+  /* 与人物志、记闻统一的页面外观 */
+  @font-face {
+    font-family: Zhaohua;
+    src: url("./fonts/hgx314zt77rT4VM7jffeaVGmA.ttf") format("truetype");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: SourceHan;
+    src: url("./fonts/hief7Umr6mqzKUO37He3NcwPo14.otf") format("opentype");
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: Qiji;
+    src: url("./fonts/cRlCeCBTN82rySwblecgchyzq4I.ttf") format("truetype");
+    font-display: swap;
+  }
+
+  :root {
+    --page: #ebdfda;
+    --banner: #8a7d70;
+    --panel: rgba(217, 205, 202, .72);
+    --card: rgba(255, 255, 255, .60);
+    --ink: #685d53;
+    --deep: #685d53;
+    --cinnabar: #8a7d70;
+    --green: #8a7d70;
+    --paper: #ebdfda;
+    --line: rgba(104, 93, 83, .34);
+    --muted: rgba(105, 94, 84, .72);
+    --shadow: 0 18px 48px rgba(71, 61, 49, .10);
+    --display: Qiji, Zhaohua, "STKaiti", serif;
+  }
+
+  html { background: var(--page); }
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: SourceHan, "Songti SC", serif;
+  }
+  body::before { display: none; }
+
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    height: 76px;
+    padding: 0 clamp(28px, 6vw, 96px);
+    display: flex;
+    align-items: center;
+    background: var(--banner);
+    border-bottom: 1px solid rgba(71, 61, 49, .22);
+  }
+  .site-nav { height: 100%; display: flex; align-items: center; gap: clamp(28px, 4vw, 62px); margin-right: auto; }
+  .site-nav a { color: #fff; white-space: nowrap; font: 400 24px/1 Zhaohua, SourceHan, serif; transition: opacity .2s ease, transform .2s ease; }
+  .site-nav a:hover, .site-nav a:focus-visible { opacity: .76; transform: scale(1.06); }
+  .account { position: relative; width: 40px; height: 40px; color: transparent; font-size: 0; transition: opacity .2s ease, transform .2s ease; }
+  .account::before, .account::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); border: 3px solid #fff; }
+  .account::before { top: 4px; width: 10px; height: 10px; border-radius: 50%; }
+  .account::after { bottom: 4px; width: 24px; height: 12px; border-radius: 18px 18px 4px 4px; }
+  .account:hover, .account:focus-visible { opacity: .76; transform: scale(1.06); }
+  .menu-toggle { display: none; }
+
+  .page {
+    width: min(1120px, calc(100% - 64px));
+    margin: 44px auto 56px;
+    padding: clamp(48px, 6vw, 76px);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+  .topbar { margin-bottom: 38px; }
+  .page-heading { width: max-content; max-width: 100%; margin: 0; }
+  .page-heading h1 { margin: 0; color: var(--ink); font: 400 clamp(45px, 5vw, 68px)/1.1 var(--display); letter-spacing: .04em; }
+  .page-heading p { margin: 27px 0 0; color: var(--muted); font: 18px/1.2 Georgia, serif; letter-spacing: .12em; }
+  .nav-actions { display: none; }
+
+  .timeline-shell {
+    border: 0;
+    border-radius: 4px;
+    background: var(--card);
+    box-shadow: 0 8px 22px rgba(71, 61, 49, .06);
+  }
+  .timeline-shell::before { display: none; }
+  .timeline::before { background: linear-gradient(to bottom, transparent, var(--line) 5%, var(--line) 95%, transparent); }
+  .timeline-item::before { background: var(--banner); border-color: var(--panel); box-shadow: 0 0 0 4px rgba(138, 125, 112, .12); }
+  .year { border: 0; border-radius: 16px; background: rgba(138, 125, 112, .10); color: var(--ink); font-weight: 400; }
+  .event-list p { color: rgba(104, 93, 83, .82); }
+
+  @media (max-width: 760px) {
+    .site-header { height: 62px; padding-inline: 18px; justify-content: space-between; }
+    .site-nav {
+      display: none;
+      position: absolute;
+      top: 62px;
+      left: 0;
+      right: 0;
+      height: auto;
+      padding: 10px 18px 16px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background: rgba(138, 125, 112, .98);
+      box-shadow: 0 12px 24px rgba(71, 61, 49, .14);
+    }
+    .site-nav.is-open { display: flex; }
+    .site-nav a { width: 100%; padding: 12px 14px; font-size: 20px; text-align: left; }
+    .menu-toggle { width: 40px; height: 40px; padding: 9px 7px; display: flex; flex-direction: column; justify-content: space-around; border: 0; background: transparent; cursor: pointer; }
+    .menu-toggle span { width: 100%; height: 2px; display: block; background: #fff; transition: .2s ease; }
+    .menu-toggle.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .menu-toggle.is-open span:nth-child(2) { opacity: 0; }
+    .menu-toggle.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .page { width: calc(100% - 24px); margin: 20px auto 28px; padding: 38px 24px 44px; }
+  }
+
+  @media (max-width: 480px) {
+    .page { width: 100%; margin: 0; padding: 34px 15px 42px; border-radius: 0; box-shadow: none; }
+    .account { display: none; }
+  }
+</style>
+</head>
+
+<body>
+  <header class="site-header">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航菜单">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="site-nav" class="site-nav" aria-label="主导航">
+      <a href="./index.html">主页</a>
+      <a href="./characters/index.html">人物志</a>
+      <a href="./story/index.html">记闻</a>
+      <a href="./map.html">地图</a>
+      <a href="./timeline.html" aria-current="page">时间线</a>
+      <a href="./fanfic.html">杂谈</a>
+    </nav>
+    <a class="account" href="./user.html" aria-label="泥的用户中心">泥</a>
+  </header>
+  <main class="page">
+    <header class="topbar">
+      <div class="page-heading">
+        <h1>四方·时间线</h1>
+        <p>Timeline</p>
+      </div>
+
+    </header>
+
+    <section class="timeline-shell">
+      <div class="timeline">
+        <article class="timeline-item">
+          <h2 class="year">固元元年</h2>
+          <div class="event-list">
+            <p>晏帝高子谏初立，封二异姓王：淮王齐临川，朔王冯珵。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元二年</h2>
+          <div class="event-list">
+            <p>帝好卜筮，事必问于钦天监，不恤民意，天下怨之。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元三年</h2>
+          <div class="event-list">
+            <p>詹明以旧族罹家难。齐临川雪其冤，擢为淮国长史，使教授二公子。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元六年</h2>
+          <div class="event-list">
+            <p>淮世子齐斐受封。</p>
+            <p>朔国饥，以精兵四万易粮于淮。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元七年</h2>
+          <div class="event-list">
+            <p>淮郡蘅浦大旱，齐临川作罪己文，祷雨于郊。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元八年</h2>
+          <div class="event-list">
+            <p>齐斐亲往草庐，聘辛夷出山。</p>
+            <p>詹明立新法，广纳贤才，不问门第，异族亦可入仕。遂荐辛夷于朝，以为司工参军。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元九年</h2>
+          <div class="event-list">
+            <p>朔王冯珵亲征，拔玄塞。凯旋途中遇袭，薨。其弟冯圭嗣位。</p>
+            <p>晏臣姜玄辞官，徙居淮郡。辛夷遇之于市，荐于朝，授记事参军。</p>
+            <p>冯圭密书淮王，请联姻。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十年</h2>
+          <div class="event-list">
+            <p>冯圭送妹瑛至淮，配世子齐斐。精兵、金银从之。淮朔之盟成。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十二年</h2>
+          <div class="event-list">
+            <p>故朔王冯珵之妃王廷芝诞子，名衍。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十三年</h2>
+          <div class="event-list">
+            <p>烛山大祭司阿诺里占得天数，谓晏祚已终，遂绝朝贡。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十四年</h2>
+          <div class="event-list">
+            <p>晏将李璜攻烛山，烛山自守。</p>
+            <p>淮、朔并举，起兵攻晏。淮将郑昌延攻承京，朔将谢煜攻奉陵。奉陵之战，朔军疾战，大捷。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十五年</h2>
+          <div class="event-list">
+            <p>朔长史徐谌心力交瘁而卒，其子言钦嗣其职。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十六年</h2>
+          <div class="event-list">
+            <p>承京下，淮军入城。记事参军姜玄被俘，不屈，自刭而死。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十七年</h2>
+          <div class="event-list">
+            <p>淮王夫人虞孟英诞龙凤胎，曰珂、曰璇。</p>
+            <p>淮国军师詹明病卒。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元十八年</h2>
+          <div class="event-list">
+            <p>淮公子齐琅引兵援烛山。战酣，将军郑麟书为琅挡刀，殁于阵。晏军退，琅自请戍边。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元二十年</h2>
+          <div class="event-list">
+            <p>淮、朔合兵，克晏都。帝高子谏不肯逊位，朔将谢煜手刃之。晏亡。</p>
+            <p>朔国内乱起。淮国按兵不动，南境遂安。</p>
+            <p>淮王齐临川薨，世子齐斐嗣位。</p>
+          </div>
+        </article>
+
+        <article class="timeline-item">
+          <h2 class="year">固元二十二年</h2>
+          <div class="event-list">
+            <p>冯圭被囚，朔乱平。冯瑛继为朔王，上表请归附于淮。齐斐受之，遂称帝，改国号曰章，年号嘉平。</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+  <script>
+    const menuButton = document.querySelector(".menu-toggle");
+    const siteNav = document.querySelector(".site-nav");
+    menuButton.addEventListener("click", () => {
+      const isOpen = siteNav.classList.toggle("is-open");
+      menuButton.classList.toggle("is-open", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+    });
+    siteNav.addEventListener("click", event => {
+      if (event.target.closest("a") && window.innerWidth <= 760) {
+        siteNav.classList.remove("is-open");
+        menuButton.classList.remove("is-open");
+        menuButton.setAttribute("aria-expanded", "false");
+      }
+    });
+  </script>
+</body>
+</html>
