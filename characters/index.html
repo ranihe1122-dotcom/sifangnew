@@ -173,6 +173,103 @@
       letter-spacing: .12em;
     }
 
+    .character-filter {
+      margin: -30px 0 30px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, .34);
+      box-shadow: 0 7px 18px rgba(71, 61, 49, .045);
+    }
+
+    .character-filter summary {
+      min-height: 42px;
+      padding: 0 17px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--ink);
+      cursor: pointer;
+      list-style: none;
+      font: 400 16px/1 "Songti SC", STSong, SimSun, serif;
+      font-synthesis: none;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    .character-filter summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .character-filter summary::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-right: 2px;
+      border-right: 1px solid var(--muted);
+      border-bottom: 1px solid var(--muted);
+      transform: rotate(45deg);
+    }
+
+    .character-filter[open] summary::after {
+      transform: rotate(225deg);
+    }
+
+    .filter-controls {
+      padding: 0 17px 17px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+      gap: 10px;
+      border-top: 1px solid rgba(104, 93, 83, .16);
+    }
+
+    .filter-field {
+      min-width: 0;
+      padding-top: 12px;
+      display: grid;
+      gap: 5px;
+      color: var(--muted);
+      font: 400 14px/1 Qiji, var(--serif);
+      font-synthesis: none;
+    }
+
+    .filter-field select,
+    .filter-reset {
+      width: 100%;
+      min-height: 32px;
+      border: 1px solid rgba(104, 93, 83, .22);
+      border-radius: 6px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, .58);
+      font: 400 15px/1 Qiji, var(--serif);
+      font-synthesis: none;
+    }
+
+    .filter-field select {
+      padding: 0 39px 0 10px;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10'%3E%3Cpath d='m2 2 6 6 6-6' fill='none' stroke='%23685d53' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      background-size: 12px 8px;
+    }
+
+    .filter-reset {
+      align-self: end;
+      padding: 0 11px;
+      cursor: pointer;
+      transition: background-color .2s ease, transform .2s ease;
+    }
+
+    .filter-reset:hover,
+    .filter-reset:focus-visible {
+      background: rgba(255, 255, 255, .9);
+      transform: translateY(-1px);
+    }
+
+    .character-card[hidden] {
+      display: none;
+    }
+
     .character-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -341,6 +438,14 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 18px;
       }
+
+      .filter-controls {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .filter-reset {
+        align-self: end;
+      }
     }
 
     @media (max-width: 480px) {
@@ -362,6 +467,18 @@
 
       .character-grid {
         grid-template-columns: 1fr;
+      }
+
+      .character-filter {
+        margin-top: -22px;
+      }
+
+      .filter-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-reset {
+        min-height: 34px;
       }
 
       .character-card {
@@ -409,63 +526,89 @@
       <p>characters</p>
     </header>
 
+    <details class="character-filter">
+      <summary>筛选与排序</summary>
+      <div class="filter-controls">
+        <label class="filter-field">
+          <span>owner</span>
+          <select id="filter-owner" aria-label="按 owner 筛选">
+            <option value="">全部</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>阵营</span>
+          <select id="filter-faction" aria-label="按阵营筛选">
+            <option value="">全部</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>排序</span>
+          <select id="sort-characters" aria-label="角色排序方式">
+            <option value="color">颜色顺序</option>
+            <option value="age-asc">年龄：由小到大</option>
+            <option value="age-desc">年龄：由大到小</option>
+          </select>
+        </label>
+        <button class="filter-reset" id="filter-reset" type="button">重置</button>
+      </div>
+    </details>
     <section class="character-grid" aria-label="角色列表">
-      <a class="character-card" href="./zhengqihua/index.html">
+      <a class="character-card" href="./zhengqihua/index.html" data-owner="泥" data-faction="淮" data-age="26" data-color-order="1">
         <img src="./zhengqihua/assets/images/avatar.png" alt="郑麒华头像">
         <span class="card-copy"><strong>郑麒华</strong><span>「元锦」</span></span>
       </a>
 
-      <a class="character-card" href="./zhenglinshu/index.html">
+      <a class="character-card" href="./zhenglinshu/index.html" data-owner="泥" data-faction="淮" data-age="22" data-color-order="2">
         <img src="./zhenglinshu/assets/images/avatar.png" alt="郑麟书头像">
         <span class="card-copy"><strong>郑麟书</strong><span>「文尧」</span></span>
       </a>
 
-      <a class="character-card" href="./zhongyue/index.html">
+      <a class="character-card" href="./zhongyue/index.html" data-owner="泥" data-faction="无" data-age="26" data-color-order="3">
         <img src="./zhongyue/assets/images/avatar.png" alt="钟月头像">
         <span class="card-copy"><strong>钟月</strong><span>「上弦」</span></span>
       </a>
       
-      <a class="character-card" href="./fuzhou/index.html">
+      <a class="character-card" href="./fuzhou/index.html" data-owner="泥" data-faction="晏" data-age="31" data-color-order="4">
         <img src="./fuzhou/assets/images/avatar.png" alt="伏周头像">
         <span class="card-copy"><strong>伏周</strong><span>「孟全」</span></span>
       </a>
       
-      <a class="character-card" href="./yeqichi/index.html">
+      <a class="character-card" href="./yeqichi/index.html" data-owner="宛洛" data-faction="无" data-age="20" data-color-order="5">
         <img src="./yeqichi/assets/images/avatar.png" alt="叶栖迟头像">
         <span class="card-copy"><strong>叶栖迟</strong><span>「长安」</span></span>
       </a>
 
-      <a class="character-card" href="./jiangxuan/index.html">
+      <a class="character-card" href="./jiangxuan/index.html" data-owner="泥" data-faction="淮" data-age="24" data-color-order="6">
         <img src="./jiangxuan/assets/images/avatar.png" alt="姜玄头像">
         <span class="card-copy"><strong>姜玄</strong><span>「子墨」</span></span>
       </a>
 
-      <a class="character-card" href="./xinyi/index.html">
+      <a class="character-card" href="./xinyi/index.html" data-owner="泥" data-faction="淮" data-age="20" data-color-order="7">
         <img src="./xinyi/assets/images/avatar.png" alt="辛夷头像">
         <span class="card-copy"><strong>辛夷</strong><span>「桑若」</span></span>
       </a>
 
-      <a class="character-card" href="./zhanming/index.html">
+      <a class="character-card" href="./zhanming/index.html" data-owner="泥" data-faction="淮" data-age="27" data-color-order="8">
         <img src="./zhanming/assets/images/avatar.png" alt="詹明头像">
         <span class="card-copy"><strong>詹明</strong><span>「无晦」</span></span>
       </a>
 
-      <a class="character-card" href="./qifei/index.html">
+      <a class="character-card" href="./qifei/index.html" data-owner="珩光花信" data-faction="淮" data-age="20" data-color-order="9">
         <img src="./qifei/assets/images/avatar.png" alt="齐斐头像">
         <span class="card-copy"><strong>齐斐</strong><span>「章华」</span></span>
       </a>
 
-      <a class="character-card" href="./qilang/index.html">
+      <a class="character-card" href="./qilang/index.html" data-owner="珩光花信" data-faction="淮" data-age="20" data-color-order="10">
         <img src="./qilang/assets/images/avatar.png" alt="齐琅头像">
         <span class="card-copy"><strong>齐琅</strong><span>「怀石」</span></span>
       </a>
 
-      <a class="character-card" href="./fengying/index.html">
+      <a class="character-card" href="./fengying/index.html" data-owner="珩光花信" data-faction="淮" data-age="18" data-color-order="11">
         <img src="./fengying/assets/images/avatar.png" alt="冯瑛头像">
         <span class="card-copy"><strong>冯瑛</strong><span>「令仪」</span></span>
       </a>
 
-      <a class="character-card" href="./qinqin/index.html">
+      <a class="character-card" href="./qinqin/index.html" data-owner="泥" data-faction="淮" data-age="27" data-color-order="12">
         <img src="./qinqin/assets/images/avatar.png" alt="秦溱头像">
         <span class="card-copy"><strong>秦溱</strong><span>「子渊」</span></span>
       </a>
@@ -491,6 +634,59 @@
         menuButton.setAttribute("aria-label", "打开导航菜单");
       }
     });
+
+    const characterGrid = document.querySelector(".character-grid");
+    const characterCards = [...characterGrid.querySelectorAll(".character-card")];
+    const ownerFilter = document.querySelector("#filter-owner");
+    const factionFilter = document.querySelector("#filter-faction");
+    const sortCharacters = document.querySelector("#sort-characters");
+    const filterReset = document.querySelector("#filter-reset");
+    const originalOrder = new Map(characterCards.map((card, index) => [card, index]));
+
+    function addFilterOptions(select, values, allLabel) {
+      select.replaceChildren(new Option(allLabel, ""));
+      [...values]
+        .sort((a, b) => a.localeCompare(b, "zh-CN"))
+        .forEach(value => select.add(new Option(value, value)));
+    }
+
+    addFilterOptions(ownerFilter, new Set(characterCards.map(card => card.dataset.owner)), "全部 owner");
+    addFilterOptions(factionFilter, new Set(characterCards.map(card => card.dataset.faction)), "全部阵营");
+
+    function applyFiltersAndSort() {
+      const selectedOwner = ownerFilter.value;
+      const selectedFaction = factionFilter.value;
+
+      characterCards.forEach(card => {
+        const matchesOwner = !selectedOwner || card.dataset.owner === selectedOwner;
+        const matchesFaction = !selectedFaction || card.dataset.faction === selectedFaction;
+        card.hidden = !(matchesOwner && matchesFaction);
+      });
+
+      const orderedCards = [...characterCards].sort((a, b) => {
+        const colorOrder = Number(a.dataset.colorOrder) - Number(b.dataset.colorOrder);
+        const ageOrder = Number(a.dataset.age) - Number(b.dataset.age);
+
+        if (sortCharacters.value === "age-asc") return ageOrder || colorOrder;
+        if (sortCharacters.value === "age-desc") return -ageOrder || colorOrder;
+        return colorOrder || originalOrder.get(a) - originalOrder.get(b);
+      });
+
+      characterGrid.append(...orderedCards);
+    }
+
+    [ownerFilter, factionFilter, sortCharacters].forEach(control => {
+      control.addEventListener("change", applyFiltersAndSort);
+    });
+
+    filterReset.addEventListener("click", () => {
+      ownerFilter.value = "";
+      factionFilter.value = "";
+      sortCharacters.value = "color";
+      applyFiltersAndSort();
+    });
+
+    applyFiltersAndSort();
   </script>
 </body>
 </html>
