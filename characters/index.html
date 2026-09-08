@@ -723,7 +723,7 @@
       });
     }
 
-    function addFilterOptions(dropdown, values, allLabel) {
+    function addFilterOptions(dropdown, values, allLabel, preferredOrder = []) {
       const options = dropdown.querySelector(".filter-options");
       options.replaceChildren();
 
@@ -738,12 +738,26 @@
 
       addOption("", allLabel);
       [...values]
-        .sort((a, b) => a.localeCompare(b, "zh-CN"))
+        .sort((a, b) => {
+          const aIndex = preferredOrder.indexOf(a);
+          const bIndex = preferredOrder.indexOf(b);
+          if (aIndex !== -1 || bIndex !== -1) {
+            if (aIndex === -1) return 1;
+            if (bIndex === -1) return -1;
+            return aIndex - bIndex;
+          }
+          return a.localeCompare(b, "zh-CN");
+        })
         .forEach(value => addOption(value, value));
       setDropdownValue(dropdown, "");
     }
 
-    addFilterOptions(ownerFilter, new Set(characterCards.map(card => card.dataset.owner)), "全部 owner");
+    addFilterOptions(
+      ownerFilter,
+      new Set(characterCards.map(card => card.dataset.owner)),
+      "全部 owner",
+      ["泥", "宛洛", "珩光花信"]
+    );
     addFilterOptions(factionFilter, new Set(characterCards.map(card => card.dataset.faction)), "全部阵营");
 
     function applyFiltersAndSort() {
