@@ -180,7 +180,7 @@
       box-shadow: 0 7px 18px rgba(71, 61, 49, .045);
     }
 
-    .character-filter summary {
+    .character-filter > summary {
       min-height: 42px;
       padding: 0 17px;
       display: flex;
@@ -195,11 +195,11 @@
       user-select: none;
     }
 
-    .character-filter summary::-webkit-details-marker {
+    .character-filter > summary::-webkit-details-marker {
       display: none;
     }
 
-    .character-filter summary::after {
+    .character-filter > summary::after {
       content: "";
       width: 8px;
       height: 8px;
@@ -209,7 +209,7 @@
       transform: rotate(45deg);
     }
 
-    .character-filter[open] summary::after {
+    .character-filter[open] > summary::after {
       transform: rotate(225deg);
     }
 
@@ -231,7 +231,7 @@
       font-synthesis: none;
     }
 
-    .filter-field select,
+    .filter-dropdown summary,
     .filter-reset {
       width: 100%;
       min-height: 32px;
@@ -243,14 +243,75 @@
       font-synthesis: none;
     }
 
-    .filter-field select {
-      padding: 0 39px 0 10px;
-      appearance: none;
-      -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10'%3E%3Cpath d='m2 2 6 6 6-6' fill='none' stroke='%23685d53' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.6'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 16px center;
-      background-size: 12px 8px;
+    .filter-dropdown {
+      position: relative;
+    }
+
+    .filter-dropdown summary {
+      padding: 0 14px 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .filter-dropdown summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .filter-dropdown summary::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      margin-left: 10px;
+      border-right: 1px solid var(--muted);
+      border-bottom: 1px solid var(--muted);
+      transform: rotate(45deg);
+    }
+
+    .filter-dropdown[open] summary {
+      border-color: rgba(104, 93, 83, .42);
+      background: rgba(255, 255, 255, .82);
+    }
+
+    .filter-dropdown[open] summary::after {
+      transform: rotate(225deg);
+    }
+
+    .filter-options {
+      position: absolute;
+      z-index: 8;
+      top: calc(100% + 5px);
+      right: 0;
+      left: 0;
+      padding: 5px;
+      display: grid;
+      gap: 1px;
+      border: 1px solid rgba(104, 93, 83, .22);
+      border-radius: 6px;
+      background: rgba(249, 246, 243, .98);
+      box-shadow: 0 8px 18px rgba(71, 61, 49, .11);
+    }
+
+    .filter-option {
+      min-height: 27px;
+      padding: 4px 6px;
+      border: 0;
+      border-radius: 3px;
+      color: var(--ink);
+      background: transparent;
+      text-align: left;
+      cursor: pointer;
+      font: 400 14px/1.25 Qiji, var(--serif);
+      font-synthesis: none;
+    }
+
+    .filter-option:hover,
+    .filter-option:focus-visible,
+    .filter-option[aria-selected="true"] {
+      color: var(--ink);
+      background: rgba(217, 205, 202, .48);
     }
 
     .filter-reset {
@@ -529,26 +590,31 @@
     <details class="character-filter">
       <summary>筛选与排序</summary>
       <div class="filter-controls">
-        <label class="filter-field">
-          <span>owner</span>
-          <select id="filter-owner" aria-label="按 owner 筛选">
-            <option value="">全部</option>
-          </select>
-        </label>
-        <label class="filter-field">
-          <span>阵营</span>
-          <select id="filter-faction" aria-label="按阵营筛选">
-            <option value="">全部</option>
-          </select>
-        </label>
-        <label class="filter-field">
-          <span>排序</span>
-          <select id="sort-characters" aria-label="角色排序方式">
-            <option value="color">颜色顺序</option>
-            <option value="age-asc">年龄：由小到大</option>
-            <option value="age-desc">年龄：由大到小</option>
-          </select>
-        </label>
+        <div class="filter-field">
+          <span id="filter-owner-label">owner</span>
+          <details class="filter-dropdown" id="filter-owner" data-value="">
+            <summary aria-labelledby="filter-owner-label"><span class="filter-dropdown-label">全部 owner</span></summary>
+            <div class="filter-options"></div>
+          </details>
+        </div>
+        <div class="filter-field">
+          <span id="filter-faction-label">阵营</span>
+          <details class="filter-dropdown" id="filter-faction" data-value="">
+            <summary aria-labelledby="filter-faction-label"><span class="filter-dropdown-label">全部阵营</span></summary>
+            <div class="filter-options"></div>
+          </details>
+        </div>
+        <div class="filter-field">
+          <span id="sort-characters-label">排序</span>
+          <details class="filter-dropdown" id="sort-characters" data-value="color">
+            <summary aria-labelledby="sort-characters-label"><span class="filter-dropdown-label">颜色顺序</span></summary>
+            <div class="filter-options">
+              <button class="filter-option" type="button" data-value="color" aria-selected="true">颜色顺序</button>
+              <button class="filter-option" type="button" data-value="age-asc" aria-selected="false">年龄：由小到大</button>
+              <button class="filter-option" type="button" data-value="age-desc" aria-selected="false">年龄：由大到小</button>
+            </div>
+          </details>
+        </div>
         <button class="filter-reset" id="filter-reset" type="button">重置</button>
       </div>
     </details>
@@ -641,21 +707,48 @@
     const factionFilter = document.querySelector("#filter-faction");
     const sortCharacters = document.querySelector("#sort-characters");
     const filterReset = document.querySelector("#filter-reset");
+    const filterDropdowns = [...document.querySelectorAll(".filter-dropdown")];
     const originalOrder = new Map(characterCards.map((card, index) => [card, index]));
 
-    function addFilterOptions(select, values, allLabel) {
-      select.replaceChildren(new Option(allLabel, ""));
+    function setDropdownValue(dropdown, value) {
+      const selectedOption = [...dropdown.querySelectorAll(".filter-option")]
+        .find(option => option.dataset.value === value);
+
+      if (!selectedOption) return;
+
+      dropdown.dataset.value = value;
+      dropdown.querySelector(".filter-dropdown-label").textContent = selectedOption.textContent;
+      dropdown.querySelectorAll(".filter-option").forEach(option => {
+        option.setAttribute("aria-selected", String(option === selectedOption));
+      });
+    }
+
+    function addFilterOptions(dropdown, values, allLabel) {
+      const options = dropdown.querySelector(".filter-options");
+      options.replaceChildren();
+
+      const addOption = (value, label) => {
+        const option = document.createElement("button");
+        option.className = "filter-option";
+        option.type = "button";
+        option.dataset.value = value;
+        option.textContent = label;
+        options.append(option);
+      };
+
+      addOption("", allLabel);
       [...values]
         .sort((a, b) => a.localeCompare(b, "zh-CN"))
-        .forEach(value => select.add(new Option(value, value)));
+        .forEach(value => addOption(value, value));
+      setDropdownValue(dropdown, "");
     }
 
     addFilterOptions(ownerFilter, new Set(characterCards.map(card => card.dataset.owner)), "全部 owner");
     addFilterOptions(factionFilter, new Set(characterCards.map(card => card.dataset.faction)), "全部阵营");
 
     function applyFiltersAndSort() {
-      const selectedOwner = ownerFilter.value;
-      const selectedFaction = factionFilter.value;
+      const selectedOwner = ownerFilter.dataset.value;
+      const selectedFaction = factionFilter.dataset.value;
 
       characterCards.forEach(card => {
         const matchesOwner = !selectedOwner || card.dataset.owner === selectedOwner;
@@ -667,22 +760,41 @@
         const colorOrder = Number(a.dataset.colorOrder) - Number(b.dataset.colorOrder);
         const ageOrder = Number(a.dataset.age) - Number(b.dataset.age);
 
-        if (sortCharacters.value === "age-asc") return ageOrder || colorOrder;
-        if (sortCharacters.value === "age-desc") return -ageOrder || colorOrder;
+        if (sortCharacters.dataset.value === "age-asc") return ageOrder || colorOrder;
+        if (sortCharacters.dataset.value === "age-desc") return -ageOrder || colorOrder;
         return colorOrder || originalOrder.get(a) - originalOrder.get(b);
       });
 
       characterGrid.append(...orderedCards);
     }
 
-    [ownerFilter, factionFilter, sortCharacters].forEach(control => {
-      control.addEventListener("change", applyFiltersAndSort);
+    filterDropdowns.forEach(dropdown => {
+      dropdown.addEventListener("toggle", () => {
+        if (!dropdown.open) return;
+        filterDropdowns.forEach(otherDropdown => {
+          if (otherDropdown !== dropdown) otherDropdown.open = false;
+        });
+      });
+
+      dropdown.addEventListener("click", event => {
+        const option = event.target.closest(".filter-option");
+        if (!option) return;
+
+        setDropdownValue(dropdown, option.dataset.value);
+        dropdown.open = false;
+        applyFiltersAndSort();
+      });
+    });
+
+    document.addEventListener("click", event => {
+      if (filterDropdowns.some(dropdown => dropdown.contains(event.target))) return;
+      filterDropdowns.forEach(dropdown => { dropdown.open = false; });
     });
 
     filterReset.addEventListener("click", () => {
-      ownerFilter.value = "";
-      factionFilter.value = "";
-      sortCharacters.value = "color";
+      setDropdownValue(ownerFilter, "");
+      setDropdownValue(factionFilter, "");
+      setDropdownValue(sortCharacters, "color");
       applyFiltersAndSort();
     });
 
