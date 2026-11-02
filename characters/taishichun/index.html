@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <script src="../../assets/site-banner.js" defer></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="人物志">
+
+  <title>人物志 · 太史淳</title>
+
+  <!-- characters/style.css -->
+  <link rel="stylesheet" href="../style.css">
+
+  <style>
+    /* color */
+    :root {
+      --browser-bg: #eee;
+      --page-bg: #fff;
+
+      --banner-bg: #eed061;
+      --banner-text: #fff;
+      --banner-start: #eed061;
+      --banner-middle: #ebdd83;
+      --banner-end: #ebdd83;
+      --mobile-menu-bg: #eed061;
+
+      --page-glow: rgba(251, 243, 214, 0.14);
+
+      --profile-bg: #fffbf1;
+      --facts-bg: rgba(255, 255, 255, 0.45);
+
+      --card-bg: #fff;
+      --card-translucent-bg: rgba(255, 255, 255, .78);
+      --card-soft-bg: rgba(246, 248, 243, .78);
+
+      --intro-text: #b08d45;
+
+      --field-top: #fdf187;
+      --field-bottom: #f4eedc;
+
+      --ink: #5b5a54;
+      --green: #8a6b45;
+      --deep: #453a1f;
+      --line: #e4dfd1;
+
+      --owner-color: #f4bf51;
+      --relation-name: #d29c2c;
+      --relation-arrow: #a7977c;
+      --relation-line: rgba(176, 161, 70, 0.16);
+      --relation-hover: rgba(201, 197, 173, 0.2);
+      --relation-focus: rgba(138, 121, 69, 0.28);
+
+      --banner-border: rgba(192, 177, 81, 0.32);
+      --banner-shadow: rgba(151, 139, 58, 0.12);
+      --soft-border: rgba(138, 121, 69, 0.08);
+      --profile-shadow: rgba(69, 62, 40, 0.1);
+      --facts-shadow: rgba(83, 80, 59, 0.05);
+      --panel-shadow: rgba(69, 64, 40, 0.12);
+      --portrait-shadow: rgba(72, 70, 44, 0.1);
+      --card-shadow: rgba(82, 78, 55, 0.06);
+      --menu-border: rgba(94, 91, 70, 0.2);
+      --menu-shadow: rgba(66, 62, 39, 0.12);
+
+      /* 立绘位置 */
+      --portrait-position: 8px -45px;
+      --portrait-scale: 2.5;
+      --portrait-origin: 50% 12%;
+      --portrait-position-tablet: 37% -40px;
+      --portrait-scale-tablet: 2.5;
+      --portrait-origin-tablet: 50% 12%;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      aria-label="打开导航菜单"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav id="site-nav" class="site-nav" aria-label="主导航">
+      <a href="../../index.html">主页</a>
+      <a href="../index.html">人物志</a>
+      <a href="../../story/index.html">记闻</a>
+      <a href="../../map.html">地图</a>
+      <a href="../../timeline.html">时间线</a>
+      <a href="../../fanfic.html">杂谈</a>
+    </nav>
+
+    <a
+      class="account"
+      href="../../user.html"
+      aria-label="用户中心"
+    >
+      泥
+    </a>
+  </header>
+
+  <main id="top" class="page-shell">
+    <aside id="profile" class="profile-card">
+      <div class="avatar-wrap">
+        <img
+          src="./assets/images/avatar.png"
+          alt="头像"
+        >
+      </div>
+
+      <p class="eyebrow">CHARACTER PROFILE</p>
+
+      <h1>· 太史淳 ·</h1>
+
+      <dl class="facts">
+        <div>
+          <dt>字</dt>
+          <dd>景真</dd>
+        </div>
+
+        <div>
+          <dt>阵营</dt>
+          <dd>晏</dd>
+        </div>
+
+        <div>
+          <dt>性别</dt>
+          <dd>女</dd>
+        </div>
+
+        <div>
+          <dt>年龄</dt>
+          <dd>二十</dd>
+        </div>
+
+        <div>
+          <dt>生辰</dt>
+          <dd>四月十八</dd>
+        </div>
+
+        <div>
+          <dt>身份</dt>
+          <dd>史官</dd>
+        </div>
+
+        <div>
+          <dt>owner</dt>
+
+          <dd>
+            <a class="owner-dot" href="../../user.html" aria-label="查看泥的用户界面">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9.25"></circle>
+                <circle cx="12" cy="9" r="3"></circle>
+                <path
+                  d="M6.8 18.2c.9-2.7 2.7-4.1 5.2-4.1s4.3 1.4 5.2 4.1"
+                ></path>
+              </svg>
+
+              泥
+            </a>
+          </dd>
+        </div>
+      </dl>
+    </aside>
+
+    <section class="character-panel">
+      <div class="content-area">
+        <article id="story" class="intro paper-card">
+          <header>
+            <span>01</span>
+
+            <h2>人物简介</h2>
+
+            <svg
+              class="title-icon info-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="8.75"></circle>
+              <path d="M12 11v5"></path>
+              <circle
+                class="icon-fill"
+                cx="12"
+                cy="7.8"
+                r=".8"
+              ></circle>
+            </svg>
+          </header>
+
+          <p>
+            <span>
+            晏朝史官。性格机敏可爱，言辞诙谐幽默。虽性格活泼，落笔却严谨工整，不因权势而曲笔。
+            </span>
+          </p>
+        </article>
+
+        <section
+          class="relations paper-card"
+          aria-labelledby="relations-title"
+        >
+          <header>
+            <span>02</span>
+
+            <h2 id="relations-title">人物关系</h2>
+
+            <svg
+              class="title-icon heart-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 19.2 5.4 13C1.2 9.1 6.9 3.1 12 7.3 17.1 3.1 22.8 9.1 18.6 13Z"
+              ></path>
+            </svg>
+          </header>
+
+          <div class="relation-grid">
+            <a href="../fuzhou/index.html">
+              <b>伏周</b>
+              <small>好友</small>
+            </a>
+              
+            <a href="../mengsui/index.html">
+              <b>孟绥</b>
+              <small>好友</small>
+            </a>
+            
+          </div>
+        </section>
+      </div>
+
+      <div class="portrait-area">
+        <img
+          class="portrait"
+          src="./assets/images/portrait.png"
+          alt="人物立绘"
+        >
+      </div>
+
+      <footer class="panel-footer">
+        <span>CHARACTERS ・ XU YANQIN</span>
+        <i></i>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    const menuButton = document.querySelector(".menu-toggle");
+    const siteNav = document.querySelector(".site-nav");
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = siteNav.classList.toggle("is-open");
+
+      menuButton.classList.toggle("is-open", isOpen);
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute(
+        "aria-label",
+        isOpen ? "关闭导航菜单" : "打开导航菜单"
+      );
+    });
+
+    siteNav.addEventListener("click", (event) => {
+      if (event.target.closest("a") && window.innerWidth <= 900) {
+        siteNav.classList.remove("is-open");
+        menuButton.classList.remove("is-open");
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "打开导航菜单");
+      }
+    });
+  </script>
+</body>
+</html>
